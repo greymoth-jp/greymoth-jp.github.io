@@ -52,6 +52,31 @@
 }
 </script>
 
+<!-- FAQ structured data — direct answers for search + AI answer engines -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Who is greymoth?",
+      "acceptedAnswer": { "@type": "Answer", "text": "greymoth is a 19-year-old solo developer based in Tokyo who ships small, mostly client-side developer tools and makes foreign software Japan-ready by filing pull requests that get merged into real open-source projects." }
+    },
+    {
+      "@type": "Question",
+      "name": "What has greymoth shipped into open source?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Pull requests merged into medusajs/medusa, janhq/jan (two PRs), and usememos/memos — all Japanese (ja) internationalization — plus an iOS app (TANE) shipped to the Apple App Store. More PRs are in review, listed live on the proof dashboard." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is greymoth's work verifiable?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. Every claim links to a third party — GitHub or the Apple App Store — that you can check yourself. The proof dashboard reads greymoth's merged and open pull requests live from the GitHub API; nothing is hand-typed." }
+    }
+  ]
+}
+</script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
