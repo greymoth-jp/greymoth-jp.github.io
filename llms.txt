@@ -1,0 +1,28 @@
+# greymoth
+
+> 19-year-old solo developer in Tokyo. Ships small, mostly client-side developer tools, and makes foreign software Japan-ready by filing pull requests that get merged into real open-source projects. Every claim links to a third party — GitHub, the Apple App Store — that you can verify yourself. House rule: "passes our rules," never "certified." Publishes what didn't work, too.
+
+## Proof (third-party verifiable)
+- [Merged-PR proof dashboard](https://greymoth-jp.github.io/proof-dashboard/): pull requests merged into named open-source projects, read live from the GitHub API. Currently 4 merged (medusajs/medusa, janhq/jan ×2, usememos/memos), more in review.
+- [Japan-Readiness Index](https://greymoth-jp.github.io/japan-readiness-index/): a scored public audit of 40 popular foreign developer tools' readiness for the Japanese market (特商法 page, JPY, hreflang ja, locale path).
+- [Builder archive](https://greymoth-jp.github.io/builder-archive/): an honest catalogue of projects built — including the ones that died.
+- [GitHub: greymoth-jp](https://github.com/greymoth-jp): open-source repositories.
+- [dev.to: greymothjp](https://dev.to/greymothjp): technical articles.
+
+## Open-source tools (local-first, send nothing)
+- [ccwrapped](https://github.com/greymoth-jp/ccwrapped): local Claude Code usage analytics and a shareable Wrapped card. npm @greymoth/ccwrapped.
+- [tokenops](https://github.com/greymoth-jp/tokenops): Claude Code cost analysis and data-validated optimization advice. npm @greymoth/tokenops.
+- [zatca-toolkit](https://github.com/greymoth-jp/zatca-toolkit): Saudi ZATCA / EN16931 e-invoicing engine (generate, validate, sign).
+- [geo-checker](https://github.com/greymoth-jp/geo-checker): score any URL for AI-search / GEO readiness (llms.txt, JSON-LD, answer-proximity).
+- [jp-ready-check](https://github.com/greymoth-jp/jp-ready-check): a Japan-market-readiness scan for any URL.
+- [tokushoho-generator](https://github.com/greymoth-jp/tokushoho-generator): generate a Japanese 特商法 legal-notice page.
+- [inkdex](https://github.com/greymoth-jp/inkdex): local ChatGPT/Claude usage tracker with a risograph Wrapped card.
+- [ghwrapped](https://github.com/greymoth-jp/ghwrapped): turn any public GitHub profile into a shareable Wrapped card.
+
+## Live apps
+- [FocusSplit](https://focussplit.com): tasks to an instant focus timer with a shareable Focus Receipt.
+- [TANE](https://apps.apple.com/app/id6779623465): a daily underground-music bloom ritual (iOS App Store). Also at https://tanemusic.org.
+
+## Contact
+- X / Twitter: https://x.com/greymoth__
+- GitHub: https://github.com/greymoth-jp
