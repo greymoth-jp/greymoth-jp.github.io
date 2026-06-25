@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>greymoth — launches</title>
+  <subtitle>19, Tokyo. Builds fast, ships into real OSS, honest about what died. A feed of live, checkable work as it ships.</subtitle>
+  <link href="https://greymoth-jp.github.io/feed.xml" rel="self" type="application/atom+xml"/>
+  <link href="https://greymoth-jp.github.io/" rel="alternate" type="text/html"/>
+  <id>https://greymoth-jp.github.io/</id>
+  <updated>2026-06-25T09:00:00Z</updated>
+  <author>
+    <name>greymoth</name>
+    <uri>https://github.com/greymoth-jp</uri>
+  </author>
+  <rights>Public, checkable at the source.</rights>
+
+  <entry>
+    <title>Open-source PRs — a live, unfakeable record</title>
+    <id>https://greymoth-jp.github.io/proof-dashboard/</id>
+    <link href="https://greymoth-jp.github.io/proof-dashboard/" rel="alternate" type="text/html"/>
+    <updated>2026-06-25T07:48:00Z</updated>
+    <published>2026-06-25T07:48:00Z</published>
+    <summary>A live record of pull requests opened into real projects — merged and open, read straight from the GitHub API so it can't be faked and only grows.</summary>
+  </entry>
+
+  <entry>
+    <title>Japan-Readiness Index — 40 foreign dev tools scored</title>
+    <id>https://greymoth-jp.github.io/japan-readiness-index/</id>
+    <link href="https://greymoth-jp.github.io/japan-readiness-index/" rel="alternate" type="text/html"/>
+    <updated>2026-06-25T08:40:00Z</updated>
+    <published>2026-06-23T13:00:00Z</published>
+    <summary>40 foreign dev tools scored on Japanese-market readiness. None had a 特商法 commerce page; the average was 5.6 / 100. Methodology and per-tool breakdown on the page.</summary>
+  </entry>
+
+  <entry>
+    <title>Builder Archive — 128 things built, most died</title>
+    <id>https://greymoth-jp.github.io/builder-archive/</id>
+    <link href="https://greymoth-jp.github.io/builder-archive/" rel="alternate" type="text/html"/>
+    <updated>2026-06-22T17:51:00Z</updated>
+    <published>2026-06-22T17:51:00Z</published>
+    <summary>A specimen archive of 128 builds — kept as a dissected record rather than a highlight reel, because the failures are the point.</summary>
+  </entry>
+
+</feed>

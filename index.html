@@ -6,6 +6,7 @@
 <title>greymoth — proof</title>
 <meta name="description" content="19, Tokyo. Builds fast, ships into real OSS, honest about what died. Three live, checkable records of the work — scored 40 dev tools, merged PRs into real projects, and an archive of 128 builds (most died).">
 <link rel="canonical" href="https://greymoth-jp.github.io/">
+<link rel="alternate" type="application/atom+xml" title="greymoth — launches" href="https://greymoth-jp.github.io/feed.xml">
 
 <!-- Open Graph -->
 <meta property="og:type" content="website">
@@ -200,6 +201,87 @@
   }
   footer .stamp{color:var(--vrm)}
   .note{font-size:11.5px;color:var(--faded);margin:18px 0 0;max-width:62ch;font-style:italic;font-family:var(--serif)}
+
+  /* ---- follow / owned-capture ---- */
+  .follow{
+    background:#faf5e8;
+    border:1.5px solid var(--ink);
+    border-radius:3px;
+    padding:22px 22px 20px;
+    box-shadow:var(--shadow);
+    margin-top:16px;
+  }
+  .follow h3{
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:clamp(18px,4.6vw,22px);
+    margin:0 0 8px;
+    line-height:1.1;
+  }
+  .follow p{
+    font-size:13px;
+    color:var(--ink-soft);
+    margin:0 0 16px;
+    max-width:58ch;
+  }
+  .follow .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .btn-follow{
+    display:inline-flex;
+    align-items:center;
+    gap:9px;
+    text-decoration:none;
+    font-size:13px;
+    font-weight:500;
+    color:var(--paper);
+    background:var(--vrm);
+    border:1.5px solid var(--vrm);
+    border-radius:3px;
+    padding:11px 18px;
+    transition:background .14s ease,transform .14s ease;
+  }
+  .btn-follow:hover{background:var(--vrm-bright);border-color:var(--vrm-bright);transform:translateY(-1px)}
+  .btn-follow:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+  .btn-follow .gh{flex-shrink:0}
+  .btn-rss{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    text-decoration:none;
+    font-size:12px;
+    color:var(--ink);
+    border:1.5px solid var(--ink);
+    border-radius:3px;
+    padding:10px 15px;
+    transition:background .14s ease,color .14s ease;
+  }
+  .btn-rss:hover{background:var(--ink);color:var(--paper)}
+  .btn-rss:focus-visible{outline:2px solid var(--vrm);outline-offset:3px}
+  .btn-rss svg{flex-shrink:0}
+  .btn-rss:hover svg path,.btn-rss:hover svg circle{fill:var(--paper)}
+  .follow .why{font-size:11.5px;color:var(--faded);margin:14px 0 0;max-width:60ch;font-style:italic;font-family:var(--serif)}
+
+  /* email — prepared, operator-wired (clearly not live) */
+  .notify{
+    margin-top:14px;
+    border:1.5px dashed var(--hair);
+    border-radius:3px;
+    padding:18px 20px;
+    background:#f6efdf;
+  }
+  .notify .head{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    margin:0 0 8px;
+  }
+  .notify h3{
+    font-family:var(--serif);font-weight:600;
+    font-size:15px;margin:0;line-height:1.1;
+  }
+  .notify .soon{
+    font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--blue);border:1px solid var(--blue);
+    border-radius:2px;padding:2px 7px;
+  }
+  .notify p{font-size:12px;color:var(--ink-soft);margin:0;max-width:58ch}
 </style>
 </head>
 <body>
@@ -247,9 +329,31 @@
 
   <p class="note">2 merged PRs is a small, early record — I'm presenting it as exactly that: live and growing, not a finished résumé.</p>
 
+  <p class="label">Follow the work</p>
+
+  <div class="follow">
+    <h3>I build in the open — catch the next launch</h3>
+    <p>Everything new ships as a public GitHub repo first. Follow me there and GitHub notifies you the moment the next one lands — no email, no algorithm deciding whether you see it.</p>
+    <div class="actions">
+      <a class="btn-follow" href="https://github.com/greymoth-jp">
+        <svg class="gh" width="17" height="17" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+        Follow @greymoth-jp on GitHub
+      </a>
+      <a class="btn-rss" href="https://greymoth-jp.github.io/feed.xml">
+        <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="19" r="2.4" fill="currentColor"/><path d="M3 9.5a1.6 1.6 0 0 0 0 3.2A8.3 8.3 0 0 1 11.3 21a1.6 1.6 0 0 0 3.2 0A11.5 11.5 0 0 0 3 9.5z" fill="currentColor"/><path d="M3 3.4a1.6 1.6 0 0 0 0 3.2A14.4 14.4 0 0 1 17.4 21a1.6 1.6 0 0 0 3.2 0A17.6 17.6 0 0 0 3 3.4z" fill="currentColor"/></svg>
+        RSS
+      </a>
+    </div>
+    <p class="why">GitHub follow = a real notification when a new public repo ships. RSS = subscribe in any reader and own the feed yourself. Both are yours — nothing to unsubscribe you, no algorithm in the way.</p>
+  </div>
+
+  <div class="notify">
+    <p class="head"><span class="soon">Coming soon</span> <span style="font-size:11.5px;color:var(--faded);font-style:italic;font-family:var(--serif)">email list — wiring an owned mailing list</span></p>
+    <p>A "get notified by email on launch" list is on the way. It's not live yet — rather than show a button that silently fails, I'd rather be honest and point you to GitHub / RSS above, which work today.</p>
+  </div>
+
   <p class="label">Elsewhere</p>
   <div class="more">
-    <a href="https://github.com/greymoth-jp"><span class="arr">↗</span> GitHub @greymoth-jp</a>
     <a href="https://dev.to/greymothjp/i-scored-40-dev-tools-on-japan-readiness-0-of-40-have-a-tokushoho-te-shang-fa-page-1daj"><span class="arr">↗</span> dev.to — the Japan-readiness write-up</a>
   </div>
 
