@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>greymoth — proof</title>
+<meta name="description" content="19, Tokyo. Builds fast, ships into real OSS, honest about what died. Three live, checkable records of the work — scored 40 dev tools, merged PRs into real projects, and an archive of 128 builds (most died).">
+<link rel="canonical" href="https://greymoth-jp.github.io/">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://greymoth-jp.github.io/">
+<meta property="og:title" content="greymoth — proof">
+<meta property="og:description" content="19, Tokyo. Builds fast, ships into real OSS, honest about what died. Three live, checkable records of the work.">
+<meta property="og:image" content="https://greymoth-jp.github.io/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="greymoth — proof">
+<meta name="twitter:description" content="19, Tokyo. Builds fast, ships into real OSS, honest about what died. Three live, checkable records of the work.">
+<meta name="twitter:image" content="https://greymoth-jp.github.io/og.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --paper:#f1ead8;
+    --ink:#211c14;
+    --ink-soft:#4a4233;
+    --faded:#9a9079;
+    --vrm:#9c3a2c;
+    --vrm-bright:#c4341f;
+    --blue:#2f4a6b;
+    --rule:#cfc4a6;
+    --hair:#c5b896;
+    --shadow:0 1px 0 #fff8, 0 14px 34px -20px #0008;
+    --serif:"Fraunces",Georgia,serif;
+    --mono:"DM Mono","SFMono-Regular",ui-monospace,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--mono);
+    line-height:1.55;
+    /* paper grain */
+    background-image:
+      radial-gradient(circle at 20% 12%, #fff5 0, #fff0 38%),
+      radial-gradient(circle at 82% 78%, #b6a87f22 0, #fff0 42%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+  }
+  a{color:inherit}
+  .wrap{
+    max-width:760px;
+    margin:0 auto;
+    padding:clamp(28px,6vw,64px) clamp(18px,5vw,28px) 64px;
+  }
+
+  /* ---- header ---- */
+  header{
+    border-bottom:1.5px solid var(--ink);
+    padding-bottom:20px;
+    margin-bottom:30px;
+  }
+  .kicker{
+    font-size:11px;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--vrm);
+    margin:0 0 14px;
+    display:flex;
+    gap:10px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  .kicker .dot{width:6px;height:6px;border-radius:50%;background:var(--vrm);display:inline-block;box-shadow:0 0 0 3px #9c3a2c22}
+  h1{
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:clamp(34px,9vw,60px);
+    line-height:.98;
+    letter-spacing:-.01em;
+    margin:0 0 8px;
+  }
+  h1 .mark{color:var(--vrm)}
+  .sub{
+    font-family:var(--serif);
+    font-style:italic;
+    font-weight:400;
+    font-size:clamp(15px,3.6vw,20px);
+    color:var(--ink-soft);
+    margin:0 0 16px;
+    max-width:46ch;
+  }
+  .lede{
+    font-size:13.5px;
+    color:var(--ink-soft);
+    margin:0;
+    max-width:60ch;
+  }
+  .lede b{color:var(--ink);font-weight:500}
+
+  /* ---- section label ---- */
+  .label{
+    font-size:11px;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    color:var(--faded);
+    margin:34px 0 14px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .label::after{content:"";flex:1;height:1px;background:var(--hair)}
+
+  /* ---- cards ---- */
+  .cards{display:grid;gap:16px}
+  .card{
+    display:block;
+    text-decoration:none;
+    background:#faf5e8;
+    border:1.5px solid var(--ink);
+    border-radius:3px;
+    padding:20px 20px 18px;
+    box-shadow:var(--shadow);
+    transition:transform .14s ease, box-shadow .14s ease;
+    position:relative;
+  }
+  .card:hover{transform:translateY(-2px);box-shadow:0 1px 0 #fff8, 0 20px 40px -20px #0009}
+  .card:focus-visible{outline:2px solid var(--vrm);outline-offset:3px}
+  .card .top{display:flex;justify-content:space-between;align-items:baseline;gap:14px}
+  .card h2{
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:clamp(19px,5vw,24px);
+    margin:0;
+    line-height:1.08;
+  }
+  .card .stat{
+    font-family:var(--mono);
+    font-weight:500;
+    font-size:12px;
+    white-space:nowrap;
+    color:var(--vrm);
+    border:1px solid var(--vrm);
+    padding:3px 8px;
+    border-radius:2px;
+    text-align:center;
+    flex-shrink:0;
+  }
+  .card .stat.neutral{color:var(--blue);border-color:var(--blue)}
+  .card p{
+    font-size:13px;
+    color:var(--ink-soft);
+    margin:11px 0 0;
+    max-width:58ch;
+  }
+  .card .go{
+    font-size:11px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--faded);
+    margin-top:14px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .card:hover .go{color:var(--vrm)}
+  .card .go .url{color:var(--ink-soft);text-transform:none;letter-spacing:0}
+
+  /* ---- footer links ---- */
+  .more{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+  .more a{
+    text-decoration:none;
+    font-size:12px;
+    color:var(--ink);
+    border:1px solid var(--ink);
+    border-radius:2px;
+    padding:8px 14px;
+    transition:background .14s ease,color .14s ease;
+  }
+  .more a:hover{background:var(--ink);color:var(--paper)}
+  .more a .arr{color:var(--vrm)}
+  .more a:hover .arr{color:var(--paper)}
+
+  footer{
+    margin-top:42px;
+    padding-top:18px;
+    border-top:1px solid var(--hair);
+    font-size:11.5px;
+    color:var(--faded);
+    display:flex;
+    justify-content:space-between;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  footer .stamp{color:var(--vrm)}
+  .note{font-size:11.5px;color:var(--faded);margin:18px 0 0;max-width:62ch;font-style:italic;font-family:var(--serif)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="kicker"><span class="dot"></span> greymoth · Tokyo · proof, not pitch</p>
+    <h1>I build in the open<span class="mark">.</span></h1>
+    <p class="sub">19, in Tokyo. I build fast, ship into real open-source projects, and keep an honest record of what worked — and what died.</p>
+    <p class="lede">No track record to claim yet, so here are three <b>live, checkable</b> records instead. Every number below is pulled from a public source you can open and verify yourself.</p>
+  </header>
+
+  <p class="label">The record</p>
+
+  <div class="cards">
+
+    <a class="card" href="https://greymoth-jp.github.io/proof-dashboard/">
+      <div class="top">
+        <h2>Open-source PRs</h2>
+        <span class="stat">2 merged · 16 open</span>
+      </div>
+      <p>A live record of pull requests I've opened into real projects — 2 merged into Jan, 16 still open across 12 repos. It reads straight from the GitHub API, so it can't be faked and it only grows.</p>
+      <span class="go"><span class="arr">→</span> proof-dashboard <span class="url">/proof-dashboard</span></span>
+    </a>
+
+    <a class="card" href="https://greymoth-jp.github.io/japan-readiness-index/">
+      <div class="top">
+        <h2>Japan-Readiness Index</h2>
+        <span class="stat neutral">40 tools · 0 ready</span>
+      </div>
+      <p>I scored 40 foreign dev tools on how ready they are for the Japanese market. None had a 特商法 (legally required commerce) page; the average score was 5.6 / 100. Methodology and per-tool breakdown are on the page.</p>
+      <span class="go"><span class="arr">→</span> japan-readiness-index <span class="url">/japan-readiness-index</span></span>
+    </a>
+
+    <a class="card" href="https://greymoth-jp.github.io/builder-archive/">
+      <div class="top">
+        <h2>Builder Archive</h2>
+        <span class="stat neutral">128 built · most died</span>
+      </div>
+      <p>A specimen archive of 128 things I built — and the honest part: most of them died. Kept as a dissected record of the work rather than a highlight reel, because the failures are the point.</p>
+      <span class="go"><span class="arr">→</span> builder-archive <span class="url">/builder-archive</span></span>
+    </a>
+
+  </div>
+
+  <p class="note">2 merged PRs is a small, early record — I'm presenting it as exactly that: live and growing, not a finished résumé.</p>
+
+  <p class="label">Elsewhere</p>
+  <div class="more">
+    <a href="https://github.com/greymoth-jp"><span class="arr">↗</span> GitHub @greymoth-jp</a>
+    <a href="https://dev.to/greymothjp/i-scored-40-dev-tools-on-japan-readiness-0-of-40-have-a-tokushoho-te-shang-fa-page-1daj"><span class="arr">↗</span> dev.to — the Japan-readiness write-up</a>
+  </div>
+
+  <footer>
+    <span>greymoth · Tokyo, Japan</span>
+    <span class="stamp">all numbers verifiable at the source</span>
+  </footer>
+
+</div>
+</body>
+</html>
