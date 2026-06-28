@@ -3,7 +3,7 @@
 > 19-year-old solo developer in Tokyo. Ships small, mostly client-side developer tools, and makes foreign software Japan-ready by filing pull requests that get merged into real open-source projects. Every claim links to a third party — GitHub, the Apple App Store — that you can verify yourself. House rule: "passes our rules," never "certified." Publishes what didn't work, too.
 
 ## Proof (third-party verifiable)
-- [Merged-PR proof dashboard](https://greymoth-jp.github.io/proof-dashboard/): pull requests merged into named open-source projects, read live from the GitHub API. Currently 4 merged (medusajs/medusa, janhq/jan ×2, usememos/memos), more in review.
+- [Merged-PR proof dashboard](https://greymoth-jp.github.io/proof-dashboard/): pull requests merged into named open-source projects, read live from the GitHub API. Currently 23 merged into named projects (vitejs/vite, scrapy/scrapy, postcss/postcss, raysan5/raylib, nestjs/nest, medusajs/medusa and more), with more in review.
 - [Japan-Readiness Index](https://greymoth-jp.github.io/japan-readiness-index/): a scored public audit of 40 popular foreign developer tools' readiness for the Japanese market (特商法 page, JPY, hreflang ja, locale path).
 - [Builder archive](https://greymoth-jp.github.io/builder-archive/): an honest catalogue of projects built — including the ones that died.
 - [GitHub: greymoth-jp](https://github.com/greymoth-jp): open-source repositories.
