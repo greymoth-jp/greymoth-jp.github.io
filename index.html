@@ -274,6 +274,26 @@
   .net a:hover .star{color:#bdbdb7}
   .net .fill{flex:1 1 999px;border-bottom:2px solid var(--ink)}
 
+  /* ---- LAYER 4.5 · field guide (knowledge: friction taxonomy) ---- */
+  .guide{display:grid;grid-template-columns:repeat(3,1fr);border:2px solid var(--ink)}
+  .guide .gcell{padding:18px clamp(14px,3vw,20px);border-right:2px solid var(--ink)}
+  .guide .gcell:last-child{border-right:none}
+  .guide .gtype{
+    font-family:var(--disp);font-size:clamp(18px,4.4vw,25px);
+    line-height:.96;letter-spacing:-.01em;text-transform:uppercase;
+    text-shadow:.03em .035em 0 var(--ghost);
+  }
+  .guide .gline{font-size:12px;color:var(--soft);line-height:1.5;margin:13px 0 0;max-width:34ch}
+  .guide .gtag{
+    font-size:10px;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--faded);margin:13px 0 0;line-height:1.4;
+  }
+  @media(max-width:600px){
+    .guide{grid-template-columns:1fr}
+    .guide .gcell{border-right:none;border-bottom:2px solid var(--ink)}
+    .guide .gcell:last-child{border-bottom:none}
+  }
+
   /* ---- LAYER 5 · timeline ---- */
   .timeline{border-left:2px solid var(--ink);margin-left:6px;padding-left:0}
   .timeline .ev{position:relative;padding:0 0 22px 26px}
@@ -444,6 +464,7 @@
       <div class="step"><span class="k">Impact</span><span class="v">Five tools a Japanese user couldn't fully read are now usable in their own language.</span></div>
     </div>
     <a class="verify" href="https://github.com/medusajs/medusa/pull/15839">verify a merge on GitHub ↗</a>
+    <a class="verify" href="https://github.com/greymoth-jp/cjk-agent-fixtures/blob/main/TAXONOMY.md" style="margin-left:18px">where it sits in the field guide ↗</a>
   </article>
 
   <article class="proof">
@@ -458,6 +479,7 @@
       <div class="step"><span class="k">Impact</span><span class="v">A repeatable map of where global software is structurally blind to Japan — not a callout, a measurement.</span></div>
     </div>
     <a class="verify" href="https://greymoth-jp.github.io/japan-readiness-index/">read the index ↗</a>
+    <a class="verify" href="https://dev.to/greymothjp/the-japan-readiness-standard-1emp" style="margin-left:18px">the standard behind it ↗</a>
   </article>
 
   <article class="proof">
@@ -472,6 +494,7 @@
       <div class="step"><span class="k">Impact</span><span class="v">A reusable corpus and a repeatable way to find first contributions that actually merge.</span></div>
     </div>
     <a class="verify" href="https://github.com/greymoth-jp/sibling-leftover-dataset">open the dataset ↗</a>
+    <a class="verify" href="https://dev.to/greymothjp/the-bug-a-merged-fix-forgot-how-i-find-first-oss-contributions-that-actually-merge-5b4k" style="margin-left:18px">the method, written up ↗</a>
   </article>
 
   <!-- LAYER 4 — NETWORK -->
@@ -501,10 +524,44 @@
     <a href="https://github.com/gin-gonic/gin/pull/4717">gin-gonic/gin <span class="star">88k★</span></a>
     <span class="fill"></span>
   </div>
-  <p class="note">Twenty-two named projects accepted code in week one of this record — across TypeScript, Go, Rust and Python. That breadth is the point: it isn't one lucky merge, it's a repeatable way of reading a codebase and finding the fix.</p>
+  <p class="note">Twenty-two named projects accepted code in week one of this record — across TypeScript, Go, Rust and Python. That breadth is the point: it isn't one lucky merge, it's a repeatable way of reading a codebase and finding the fix. And the fixes aren't random: they fall into a few repeating shapes, named in the field guide below.</p>
+
+  <!-- LAYER 4.5 — FIELD GUIDE (knowledge: the merges, classified + written up) -->
+  <p class="label"><span class="n">04</span> The field guide</p>
+  <p class="note" style="margin-top:0;margin-bottom:18px">Twenty-four merges, but not twenty-four unrelated bugs. Read enough of them and they collapse into <b>three kinds of wrong assumption</b> a system makes about text and jurisdiction: the same shapes, repeating across codebases. I wrote it down as a public taxonomy, with a runnable test behind every row.</p>
+  <div class="guide" role="list" aria-label="Localization-friction taxonomy">
+    <div class="gcell" role="listitem">
+      <div class="gtype">Format<br>mismatch</div>
+      <div class="gline">Assumes one character is one byte and one column. Then text is cut mid-kanji, the cursor lands wrong, and two equal strings compare unequal.</div>
+      <div class="gtag">3 fixtures · CJK · RTL · combining marks</div>
+    </div>
+    <div class="gcell" role="listitem">
+      <div class="gtype">Legal /<br>schema</div>
+      <div class="gline">Assumes one global shape for an invoice, an address, a receipt. Then 特商法 and インボイス have nowhere to go, and a validator rejects a valid local value.</div>
+      <div class="gtag">the compliance layer · 特商法 · 適格請求書</div>
+    </div>
+    <div class="gcell" role="listitem">
+      <div class="gtype">Cultural /<br>UX</div>
+      <div class="gline">Assumes every keystroke commits and text flows left to right. Then the IME-confirm Enter is read as submit, and composition is dropped on focus change.</div>
+      <div class="gtag">4 fixtures · IME · bidi</div>
+    </div>
+  </div>
+  <p class="note">Seven runnable cases live in <b>cjk-agent-fixtures</b> (JS + Go, MIT). Grouping by the broken assumption, not the symptom, tells you the order to fix things and where the next one shows up.</p>
+  <div class="more" style="margin-top:14px">
+    <a href="https://github.com/greymoth-jp/cjk-agent-fixtures/blob/main/TAXONOMY.md">read the full taxonomy ↗</a>
+    <a href="https://github.com/greymoth-jp/cjk-agent-fixtures/blob/main/taxonomy.json">taxonomy.json ↗</a>
+  </div>
+
+  <p class="note" style="margin-top:26px;margin-bottom:14px"><b>Written up.</b> The same work in prose: the thesis, the readiness standard I'm proposing, and the scan that put a number on the gap.</p>
+  <div class="more">
+    <a href="https://dev.to/greymothjp/i-find-japan-shaped-holes-in-global-software-5dnf">I find Japan-shaped holes in global software ↗</a>
+    <a href="https://dev.to/greymothjp/the-japan-readiness-standard-1emp">The Japan-readiness Standard ↗</a>
+    <a href="https://dev.to/greymothjp/i-scanned-15-funded-developer-tools-for-japan-readiness-every-one-scored-f-1fl3">I scanned 15 funded tools for Japan-readiness, every one scored F ↗</a>
+  </div>
+  <p class="note">Follow any thread and it lands on something a third party controls: a <b>merged PR</b> → the <b>repo</b> it shipped to → its <b>friction type</b> in the taxonomy → the <b>write-up</b> that explains it. That chain, not any single badge, is the part that's hard to fake.</p>
 
   <!-- LAYER 5 — TIMELINE -->
-  <p class="label"><span class="n">04</span> The record, in order</p>
+  <p class="label"><span class="n">05</span> The record, in order</p>
   <div class="timeline">
     <div class="ev">
       <div class="d">2026-06-24</div>
@@ -530,7 +587,7 @@
   <p class="note">I'm not going to dress five days up as five years. This is an <b>early, intense record</b>, and I present it as exactly that: live, click-through-verifiable, and growing — not a finished career.</p>
 
   <!-- ALSO SHIPPED -->
-  <p class="label"><span class="n">05</span> Also shipped</p>
+  <p class="label"><span class="n">06</span> Also shipped</p>
   <a class="rec" href="https://apps.apple.com/app/id6779623465">
     <div class="row">
       <span class="no">▪</span>
@@ -566,7 +623,7 @@
   </a>
 
   <!-- LAYER 6 — NARRATIVE -->
-  <p class="label"><span class="n">06</span> Why this, and not a CV</p>
+  <p class="label"><span class="n">07</span> Why this, and not a CV</p>
   <div class="narr">
     <p>It started as Japanese localization. I'm in Tokyo, and I kept hitting global tools that were almost usable in Japanese but not quite — a missing 特商法 page, a half-translated dashboard, an input box that mangled CJK. Those are <b>Japan-shaped holes</b>: not flaws, just a market most teams structurally can't see. So I filed the fix.</p>
     <p>Then I kept reading. Once you're inside a real codebase looking for one kind of gap, you start seeing others — a filter that doesn't clean up after itself, a cookie that corrupts when it's bytes, an underflow that only shows at a narrow terminal. None of those are about Japan. They're just bugs, and the fix ships the same way: <b>a diff a maintainer merges</b>.</p>
@@ -574,7 +631,7 @@
   </div>
 
   <!-- FOLLOW -->
-  <p class="label"><span class="n">07</span> Follow the work</p>
+  <p class="label"><span class="n">08</span> Follow the work</p>
   <div class="follow">
     <h3>Everything new ships as a public repo first.</h3>
     <p>Follow on GitHub and you get a real notification the moment the next one lands — or take the feed and read it anywhere. No email, no algorithm deciding whether you see it.</p>
