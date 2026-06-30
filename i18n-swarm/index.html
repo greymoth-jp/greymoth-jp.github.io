@@ -4,18 +4,18 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>i18n-swarm — a code-side i18n retrofit that ends with a real next build</title>
-<meta name="description" content="A code-side localization agent for Next.js. It keys your hardcoded strings, wires next-intl, and ends its run with a green next build. Run over 8 real open-source apps: 0 corruptions in 1,364 edits, all still building."/>
+<meta name="description" content="A code-side localization agent for Next.js. It keys your hardcoded strings, wires next-intl, and ends its run with a green next build. Run over 8 real open-source apps: 0 corruptions in 1,447 edits, all still building."/>
 <link rel="canonical" href="https://greymoth-jp.github.io/i18n-swarm/"/>
 <meta property="og:type" content="website"/>
 <meta property="og:url" content="https://greymoth-jp.github.io/i18n-swarm/"/>
 <meta property="og:title" content="i18n-swarm — code-side i18n that ends with a real next build"/>
-<meta property="og:description" content="8 real Next.js apps localized from the code side. 0 corruptions across 1,364 edits, all still next build green. The retrofit is the hook; the drift gate is the question."/>
+<meta property="og:description" content="8 real Next.js apps localized from the code side. 0 corruptions across 1,447 edits, all still next build green. The retrofit is the hook; the drift gate is the question."/>
 <meta property="og:image" content="https://greymoth-jp.github.io/i18n-swarm/assets/card.png"/>
 <meta property="og:image:width" content="1200"/>
 <meta property="og:image:height" content="630"/>
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="i18n-swarm — code-side i18n that ends with a real next build"/>
-<meta name="twitter:description" content="8 real Next.js apps localized from the code side. 0 corruptions across 1,364 edits, all still next build green."/>
+<meta name="twitter:description" content="8 real Next.js apps localized from the code side. 0 corruptions across 1,447 edits, all still next build green."/>
 <meta name="twitter:image" content="https://greymoth-jp.github.io/i18n-swarm/assets/card.png"/>
 <style>
   :root{
@@ -85,15 +85,15 @@
 
   <div class="stats">
     <div class="stat"><div class="n">8</div><div class="l">real OSS apps, untouched</div></div>
-    <div class="stat"><div class="n">0</div><div class="l">corruptions in 1,364 edits</div></div>
+    <div class="stat"><div class="n">0</div><div class="l">corruptions in 1,447 edits</div></div>
     <div class="stat"><div class="n">8 / 8</div><div class="l">still next build green</div></div>
-    <div class="stat"><div class="n">~43%</div><div class="l">UI strings auto-keyed (avg)</div></div>
+    <div class="stat"><div class="n">76.9%</div><div class="l">UI strings auto-keyed (avg)</div></div>
   </div>
 
-  <p class="lede" style="font-size:15px;color:var(--soft)">I ran the packed CLI against 8 unmodified open-source Next.js App Router apps with no existing i18n: Vercel Commerce, Vercel Platforms, Magic UI, two shadcn dashboards, a ts-nextjs starter, a portfolio template, and leerob.io. Each one is a clean clone &mdash; baseline <code>next build</code>, the full pass, then a fresh install and <code>next build</code> to verify. 0 corruptions across 1,364 edits, every one still green afterward, an average 43% of UI strings auto-keyed and the rest handed back as a punch-list. Not a mockup. The per-app diffs and the full results table are linked below.</p>
+  <p class="lede" style="font-size:15px;color:var(--soft)">I ran the packed CLI against 8 unmodified open-source Next.js App Router apps with no existing i18n: Vercel Commerce, Vercel Platforms, Magic UI, two shadcn dashboards, a ts-nextjs starter, a portfolio template, and leerob.io. Each one is a clean clone &mdash; baseline <code>next build</code>, the full pass, then a fresh install and <code>next build</code> to verify. 0 corruptions across 1,447 edits, every one still green afterward, an average 76.9% of UI strings auto-keyed and the rest handed back as a punch-list. Not a mockup. The per-app diffs and the full results table are linked below.</p>
 
   <div class="clip">
-    <img src="./assets/card.png" alt="i18n-swarm verdict card: 0 corruptions across 1,364 rewrite edits, 8 real OSS Next.js apps, 8 of 8 still next build green, about 43 percent of UI strings auto-keyed"/>
+    <img src="./assets/card.png" alt="i18n-swarm verdict card: 0 corruptions across 1,447 rewrite edits, 8 real OSS Next.js apps, 8 of 8 still next build green, 76.9 percent of UI strings auto-keyed"/>
   </div>
   <div class="cap">Aggregate over the 8 end-to-end apps. Full table, per-app counts and the honest out-of-scope notes: <a href="./assets/results.md">results.md</a></div>
 
@@ -139,7 +139,7 @@
 <span class="del">-       Try Again</span>
 <span class="add">+       {t('error.try_again')}</span>
         &lt;/button&gt;</div>
-  <div class="cap">Every edit is re-parsed after it is written. A bad edit reverts instead of mangling the file &mdash; that is why the corruption count is 0 across all 1,364 edits. Prose, interpolated counts, and sentences with inline links are not guessed at; they go to the review queue.</div>
+  <div class="cap">Every edit is re-parsed after it is written. A bad edit reverts instead of mangling the file &mdash; that is why the corruption count is 0 across all 1,447 edits. Prose, interpolated counts, and sentences with inline links are not guessed at; they go to the review queue.</div>
 
   <hr class="rule"/>
 
@@ -192,7 +192,7 @@
     <h3>Which one would you use?</h3>
     <p style="margin:0;color:var(--soft);font-size:14px">I'm trying to learn whether the one-shot <b style="background:var(--ink);color:var(--paper);padding:0 4px">retrofit</b> is the thing, or the recurring <b style="background:var(--ink);color:var(--paper);padding:0 4px">drift gate</b> is. Email me and tell me which &mdash; one word is plenty. I read every reply.</p>
     <a class="mailbtn" href="mailto:greymoth@glovrex.com?subject=i18n-swarm&amp;body=I%27d%20use%20the%20(retrofit%20%2F%20drift-gate)%20because%3A%0A%0AMy%20stack%3A%20">Email me: retrofit or the gate</a>
-    <p class="alt">The CLI is <code>npx i18n-swarm ./your-app</code> &mdash; <span style="color:var(--soft)">open-sourcing soon, not published yet. If you want to try it before then, say so in the email.</span></p>
+    <p class="alt">The CLI is <code>npx i18n-swarm ./your-app</code> &mdash; <span style="color:var(--soft)">published on npm (v0.1.0, MIT). Run it on a branch and read the diff before you trust it.</span></p>
   </div>
 
   <footer>
