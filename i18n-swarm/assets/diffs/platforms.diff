@@ -1,0 +1,448 @@
+ app/admin/dashboard.tsx        |  7 ++++--
+ app/layout.tsx                 |  7 +++++-
+ app/not-found.tsx              |  4 +++-
+ app/page.tsx                   |  6 +++--
+ app/s/[subdomain]/page.tsx     |  4 +++-
+ app/subdomain-form.tsx         | 11 ++++++----
+ components/ui/dialog.tsx       |  4 +++-
+ components/ui/emoji-picker.tsx |  4 +++-
+ i18n/request.ts                | 11 ++++++++++
+ messages/en.json               | 26 ++++++++++++++++++++++
+ messages/ja.json               | 26 ++++++++++++++++++++++
+ messages/translation-todo.json | 50 ++++++++++++++++++++++++++++++++++++++++++
+ next.config.ts                 |  5 ++++-
+ package.json                   |  3 ++-
+ 14 files changed, 153 insertions(+), 15 deletions(-)
+
+diff --git a/app/admin/dashboard.tsx b/app/admin/dashboard.tsx
+index 047b49f..2692c97 100644
+--- a/app/admin/dashboard.tsx
++++ b/app/admin/dashboard.tsx
+@@ -1,4 +1,5 @@
+ 'use client';
++import { useTranslations } from 'next-intl';
+ 
+ import { useActionState } from 'react';
+ import { Button } from '@/components/ui/button';
+@@ -20,11 +21,12 @@ type DeleteState = {
+ };
+ 
+ function DashboardHeader() {
++  const t = useTranslations();
+   // TODO: You can add authentication here with your preferred auth provider
+ 
+   return (
+     <div className="flex justify-between items-center mb-8">
+-      <h1 className="text-3xl font-bold">Subdomain Management</h1>
++      <h1 className="text-3xl font-bold">{t('dashboard.subdomain_management')}</h1>
+       <div className="flex items-center gap-4">
+         <Link
+           href={`${protocol}://${rootDomain}`}
+@@ -46,11 +48,12 @@ function TenantGrid({
+   action: (formData: FormData) => void;
+   isPending: boolean;
+ }) {
++  const t = useTranslations();
+   if (tenants.length === 0) {
+     return (
+       <Card>
+         <CardContent className="py-8 text-center">
+-          <p className="text-gray-500">No subdomains have been created yet.</p>
++          <p className="text-gray-500">{t('dashboard.no_subdomains_have_been_created_yet')}</p>
+         </CardContent>
+       </Card>
+     );
+diff --git a/app/layout.tsx b/app/layout.tsx
+index 0aa9de8..390e7fa 100644
+--- a/app/layout.tsx
++++ b/app/layout.tsx
+@@ -1,3 +1,5 @@
++import { NextIntlClientProvider } from 'next-intl';
++import { getMessages } from 'next-intl/server';
+ import type { Metadata } from 'next';
+ import { Geist } from 'next/font/google';
+ import { SpeedInsights } from '@vercel/speed-insights/next';
+@@ -13,16 +15,19 @@ export const metadata: Metadata = {
+   description: 'Next.js template for building a multi-tenant SaaS.'
+ };
+ 
+-export default function RootLayout({
++export default async function RootLayout({
+   children
+ }: Readonly<{
+   children: React.ReactNode;
+ }>) {
++  const messages = await getMessages();
+   return (
+     <html lang="en">
+       <body className={`${geistSans.variable} antialiased`}>
++        <NextIntlClientProvider messages={messages}>
+         {children}
+         <SpeedInsights />
++      </NextIntlClientProvider>
+       </body>
+     </html>
+   );
+diff --git a/app/not-found.tsx b/app/not-found.tsx
+index 3bdb1ba..83febdb 100644
+--- a/app/not-found.tsx
++++ b/app/not-found.tsx
+@@ -1,4 +1,5 @@
+ 'use client';
++import { useTranslations } from 'next-intl';
+ 
+ import Link from 'next/link';
+ import { useEffect, useState } from 'react';
+@@ -6,6 +7,7 @@ import { usePathname } from 'next/navigation';
+ import { rootDomain, protocol } from '@/lib/utils';
+ 
+ export default function NotFound() {
++  const t = useTranslations();
+   const [subdomain, setSubdomain] = useState<string | null>(null);
+   const pathname = usePathname();
+ 
+@@ -40,7 +42,7 @@ export default function NotFound() {
+           )}
+         </h1>
+         <p className="mt-3 text-lg text-gray-600">
+-          This subdomain hasn't been created yet.
++          {t('not_found.this_subdomain_hasnt_been_created_yet')}
+         </p>
+         <div className="mt-6">
+           <Link
+diff --git a/app/page.tsx b/app/page.tsx
+index 47ce6bf..a136c09 100644
+--- a/app/page.tsx
++++ b/app/page.tsx
+@@ -1,8 +1,10 @@
++import { getTranslations } from 'next-intl/server';
+ import Link from 'next/link';
+ import { SubdomainForm } from './subdomain-form';
+ import { rootDomain } from '@/lib/utils';
+ 
+ export default async function HomePage() {
++  const t = await getTranslations();
+   return (
+     <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-blue-50 to-white p-4 relative">
+       <div className="absolute top-4 right-4">
+@@ -10,7 +12,7 @@ export default async function HomePage() {
+           href="/admin"
+           className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+         >
+-          Admin
++          {t('page.admin')}
+         </Link>
+       </div>
+ 
+@@ -20,7 +22,7 @@ export default async function HomePage() {
+             {rootDomain}
+           </h1>
+           <p className="mt-3 text-lg text-gray-600">
+-            Create your own subdomain with a custom emoji
++            {t('page.create_your_own_subdomain_with_a_custom')}
+           </p>
+         </div>
+ 
+diff --git a/app/s/[subdomain]/page.tsx b/app/s/[subdomain]/page.tsx
+index be83a29..b271349 100644
+--- a/app/s/[subdomain]/page.tsx
++++ b/app/s/[subdomain]/page.tsx
+@@ -1,3 +1,4 @@
++import { getTranslations } from 'next-intl/server';
+ import Link from 'next/link';
+ import type { Metadata } from 'next';
+ import { notFound } from 'next/navigation';
+@@ -29,6 +30,7 @@ export default async function SubdomainPage({
+ }: {
+   params: Promise<{ subdomain: string }>;
+ }) {
++  const t = await getTranslations();
+   const { subdomain } = await params;
+   const subdomainData = await getSubdomainData(subdomain);
+ 
+@@ -54,7 +56,7 @@ export default async function SubdomainPage({
+             Welcome to {subdomain}.{rootDomain}
+           </h1>
+           <p className="mt-3 text-lg text-gray-600">
+-            This is your custom subdomain page
++            {t('page.this_is_your_custom_subdomain_page')}
+           </p>
+         </div>
+       </div>
+diff --git a/app/subdomain-form.tsx b/app/subdomain-form.tsx
+index e26371a..4983920 100644
+--- a/app/subdomain-form.tsx
++++ b/app/subdomain-form.tsx
+@@ -1,4 +1,5 @@
+ 'use client';
++import { useTranslations } from 'next-intl';
+ 
+ import type React from 'react';
+ 
+@@ -31,15 +32,16 @@ type CreateState = {
+ };
+ 
+ function SubdomainInput({ defaultValue }: { defaultValue?: string }) {
++  const t = useTranslations();
+   return (
+     <div className="space-y-2">
+-      <Label htmlFor="subdomain">Subdomain</Label>
++      <Label htmlFor="subdomain">{t('subdomain_form.subdomain')}</Label>
+       <div className="flex items-center">
+         <div className="relative flex-1">
+           <Input
+             id="subdomain"
+             name="subdomain"
+-            placeholder="your-subdomain"
++            placeholder={t('subdomain_form.your_subdomain')}
+             defaultValue={defaultValue}
+             className="w-full rounded-r-none focus:z-10"
+             required
+@@ -62,6 +64,7 @@ function IconPicker({
+   setIcon: (icon: string) => void;
+   defaultValue?: string;
+ }) {
++  const t = useTranslations();
+   const [isPickerOpen, setIsPickerOpen] = useState(false);
+ 
+   const handleEmojiSelect = ({ emoji }: { emoji: string }) => {
+@@ -71,7 +74,7 @@ function IconPicker({
+ 
+   return (
+     <div className="space-y-2">
+-      <Label htmlFor="icon">Icon</Label>
++      <Label htmlFor="icon">{t('subdomain_form.icon')}</Label>
+       <div className="flex flex-col gap-2">
+         <input type="hidden" name="icon" value={icon} required />
+         <div className="flex items-center gap-2">
+@@ -117,7 +120,7 @@ function IconPicker({
+           </Card>
+         </div>
+         <p className="text-xs text-gray-500">
+-          Select an emoji to represent your subdomain
++          {t('subdomain_form.select_an_emoji_to_represent_your_subdom')}
+         </p>
+       </div>
+     </div>
+diff --git a/components/ui/dialog.tsx b/components/ui/dialog.tsx
+index 7d7a9d3..90c5969 100644
+--- a/components/ui/dialog.tsx
++++ b/components/ui/dialog.tsx
+@@ -1,4 +1,5 @@
+ "use client"
++import { useTranslations } from 'next-intl';
+ 
+ import * as React from "react"
+ import * as DialogPrimitive from "@radix-ui/react-dialog"
+@@ -51,6 +52,7 @@ function DialogContent({
+   children,
+   ...props
+ }: React.ComponentProps<typeof DialogPrimitive.Content>) {
++  const t = useTranslations();
+   return (
+     <DialogPortal data-slot="dialog-portal">
+       <DialogOverlay />
+@@ -65,7 +67,7 @@ function DialogContent({
+         {children}
+         <DialogPrimitive.Close className="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4">
+           <XIcon />
+-          <span className="sr-only">Close</span>
++          <span className="sr-only">{t('dialog.close')}</span>
+         </DialogPrimitive.Close>
+       </DialogPrimitive.Content>
+     </DialogPortal>
+diff --git a/components/ui/emoji-picker.tsx b/components/ui/emoji-picker.tsx
+index 56042d2..6518c5e 100644
+--- a/components/ui/emoji-picker.tsx
++++ b/components/ui/emoji-picker.tsx
+@@ -1,4 +1,5 @@
+ "use client";
++import { useTranslations } from 'next-intl';
+ 
+ import {
+   type EmojiPickerListCategoryHeaderProps,
+@@ -92,6 +93,7 @@ function EmojiPickerContent({
+   className,
+   ...props
+ }: React.ComponentProps<typeof EmojiPickerPrimitive.Viewport>) {
++  const t = useTranslations();
+   return (
+     <EmojiPickerPrimitive.Viewport
+       className={cn("outline-hidden relative flex-1", className)}
+@@ -108,7 +110,7 @@ function EmojiPickerContent({
+         className="absolute inset-0 flex items-center justify-center text-muted-foreground text-sm"
+         data-slot="emoji-picker-empty"
+       >
+-        No emoji found.
++        {t('emoji_picker.no_emoji_found')}
+       </EmojiPickerPrimitive.Empty>
+       <EmojiPickerPrimitive.List
+         className="select-none pb-1"
+diff --git a/i18n/request.ts b/i18n/request.ts
+new file mode 100644
+index 0000000..50e010c
+--- /dev/null
++++ b/i18n/request.ts
+@@ -0,0 +1,11 @@
++import { getRequestConfig } from 'next-intl/server';
++
++// Single-locale setup (no locale routing): the agent localizes the code and seeds the
++// messages; negotiating / switching the active locale is left to the team.
++export default getRequestConfig(async () => {
++  const locale = 'en';
++  return {
++    locale,
++    messages: (await import(`../messages/${locale}.json`)).default,
++  };
++});
+diff --git a/messages/en.json b/messages/en.json
+new file mode 100644
+index 0000000..b3d48ae
+--- /dev/null
++++ b/messages/en.json
+@@ -0,0 +1,26 @@
++{
++  "dashboard": {
++    "no_subdomains_have_been_created_yet": "No subdomains have been created yet.",
++    "subdomain_management": "Subdomain Management"
++  },
++  "dialog": {
++    "close": "Close"
++  },
++  "emoji_picker": {
++    "no_emoji_found": "No emoji found."
++  },
++  "not_found": {
++    "this_subdomain_hasnt_been_created_yet": "This subdomain hasn't been created yet."
++  },
++  "page": {
++    "admin": "Admin",
++    "create_your_own_subdomain_with_a_custom": "Create your own subdomain with a custom emoji",
++    "this_is_your_custom_subdomain_page": "This is your custom subdomain page"
++  },
++  "subdomain_form": {
++    "icon": "Icon",
++    "select_an_emoji_to_represent_your_subdom": "Select an emoji to represent your subdomain",
++    "subdomain": "Subdomain",
++    "your_subdomain": "your-subdomain"
++  }
++}
+diff --git a/messages/ja.json b/messages/ja.json
+new file mode 100644
+index 0000000..b3d48ae
+--- /dev/null
++++ b/messages/ja.json
+@@ -0,0 +1,26 @@
++{
++  "dashboard": {
++    "no_subdomains_have_been_created_yet": "No subdomains have been created yet.",
++    "subdomain_management": "Subdomain Management"
++  },
++  "dialog": {
++    "close": "Close"
++  },
++  "emoji_picker": {
++    "no_emoji_found": "No emoji found."
++  },
++  "not_found": {
++    "this_subdomain_hasnt_been_created_yet": "This subdomain hasn't been created yet."
++  },
++  "page": {
++    "admin": "Admin",
++    "create_your_own_subdomain_with_a_custom": "Create your own subdomain with a custom emoji",
++    "this_is_your_custom_subdomain_page": "This is your custom subdomain page"
++  },
++  "subdomain_form": {
++    "icon": "Icon",
++    "select_an_emoji_to_represent_your_subdom": "Select an emoji to represent your subdomain",
++    "subdomain": "Subdomain",
++    "your_subdomain": "your-subdomain"
++  }
++}
+diff --git a/messages/translation-todo.json b/messages/translation-todo.json
+new file mode 100644
+index 0000000..744411f
+--- /dev/null
++++ b/messages/translation-todo.json
+@@ -0,0 +1,50 @@
++[
++  {
++    "key": "dashboard.no_subdomains_have_been_created_yet",
++    "en": "No subdomains have been created yet."
++  },
++  {
++    "key": "dashboard.subdomain_management",
++    "en": "Subdomain Management"
++  },
++  {
++    "key": "dialog.close",
++    "en": "Close"
++  },
++  {
++    "key": "emoji_picker.no_emoji_found",
++    "en": "No emoji found."
++  },
++  {
++    "key": "not_found.this_subdomain_hasnt_been_created_yet",
++    "en": "This subdomain hasn't been created yet."
++  },
++  {
++    "key": "page.admin",
++    "en": "Admin"
++  },
++  {
++    "key": "page.create_your_own_subdomain_with_a_custom",
++    "en": "Create your own subdomain with a custom emoji"
++  },
++  {
++    "key": "page.this_is_your_custom_subdomain_page",
++    "en": "This is your custom subdomain page"
++  },
++  {
++    "key": "subdomain_form.icon",
++    "en": "Icon"
++  },
++  {
++    "key": "subdomain_form.select_an_emoji_to_represent_your_subdom",
++    "en": "Select an emoji to represent your subdomain"
++  },
++  {
++    "key": "subdomain_form.subdomain",
++    "en": "Subdomain"
++  },
++  {
++    "key": "subdomain_form.your_subdomain",
++    "en": "your-subdomain"
++  }
++]
+diff --git a/next.config.ts b/next.config.ts
+index 9b765b9..43a313b 100644
+--- a/next.config.ts
++++ b/next.config.ts
+@@ -1,3 +1,6 @@
++import createNextIntlPlugin from 'next-intl/plugin';
++const withNextIntl = createNextIntlPlugin();
++
+ import type { NextConfig } from "next";
+ 
+ const nextConfig: NextConfig = {
+@@ -21,4 +24,4 @@ const nextConfig: NextConfig = {
+   // },
+ };
+ 
+-export default nextConfig;
++export default withNextIntl(nextConfig);
+diff --git a/package.json b/package.json
+index e2b0897..d2b0ea1 100644
+--- a/package.json
++++ b/package.json
+@@ -20,7 +20,8 @@
+     "next": "^15.3.6",
+     "react": "^19.1.0",
+     "react-dom": "^19.1.0",
+-    "tailwind-merge": "^3.3.0"
++    "tailwind-merge": "^3.3.0",
++    "next-intl": "^4.0.0"
+   },
+   "devDependencies": {
+     "@tailwindcss/postcss": "^4.1.6",

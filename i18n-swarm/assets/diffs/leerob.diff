@@ -1,0 +1,114 @@
+ app/layout.tsx                 |  7 ++++++-
+ i18n/request.ts                | 11 +++++++++++
+ messages/en.json               |  1 +
+ messages/ja.json               |  1 +
+ messages/translation-todo.json |  1 +
+ next.config.ts                 |  5 ++++-
+ package.json                   |  3 ++-
+ 7 files changed, 26 insertions(+), 3 deletions(-)
+
+diff --git a/app/layout.tsx b/app/layout.tsx
+index 2464fa2..f7c0639 100644
+--- a/app/layout.tsx
++++ b/app/layout.tsx
+@@ -1,3 +1,5 @@
++import { NextIntlClientProvider } from 'next-intl';
++import { getMessages } from 'next-intl/server';
+ import './globals.css';
+ import type { Metadata } from 'next';
+ import { Inter } from 'next/font/google';
+@@ -17,14 +19,16 @@ export const metadata: Metadata = {
+   description: 'My portfolio, blog, and personal website.'
+ };
+ 
+-export default function RootLayout({
++export default async function RootLayout({
+   children
+ }: Readonly<{
+   children: React.ReactNode;
+ }>) {
++  const messages = await getMessages();
+   return (
+     <html lang="en" className={`${inter.className}`}>
+       <body className="antialiased tracking-tight">
++        <NextIntlClientProvider messages={messages}>
+         <div className="min-h-screen flex flex-col justify-between pt-0 md:pt-8 p-8 dark:bg-zinc-950 bg-white text-gray-900 dark:text-zinc-200">
+           <main className="max-w-[60ch] mx-auto w-full space-y-6">
+             {children}
+@@ -32,6 +36,7 @@ export default function RootLayout({
+           <Footer />
+           <Analytics />
+         </div>
++      </NextIntlClientProvider>
+       </body>
+     </html>
+   );
+diff --git a/i18n/request.ts b/i18n/request.ts
+new file mode 100644
+index 0000000..50e010c
+--- /dev/null
++++ b/i18n/request.ts
+@@ -0,0 +1,11 @@
++import { getRequestConfig } from 'next-intl/server';
++
++// Single-locale setup (no locale routing): the agent localizes the code and seeds the
++// messages; negotiating / switching the active locale is left to the team.
++export default getRequestConfig(async () => {
++  const locale = 'en';
++  return {
++    locale,
++    messages: (await import(`../messages/${locale}.json`)).default,
++  };
++});
+diff --git a/messages/en.json b/messages/en.json
+new file mode 100644
+index 0000000..0967ef4
+--- /dev/null
++++ b/messages/en.json
+@@ -0,0 +1 @@
++{}
+diff --git a/messages/ja.json b/messages/ja.json
+new file mode 100644
+index 0000000..0967ef4
+--- /dev/null
++++ b/messages/ja.json
+@@ -0,0 +1 @@
++{}
+diff --git a/messages/translation-todo.json b/messages/translation-todo.json
+new file mode 100644
+index 0000000..fe51488
+--- /dev/null
++++ b/messages/translation-todo.json
+@@ -0,0 +1 @@
++[]
+diff --git a/next.config.ts b/next.config.ts
+index e3a6083..6b909b1 100644
+--- a/next.config.ts
++++ b/next.config.ts
+@@ -1,3 +1,6 @@
++import createNextIntlPlugin from 'next-intl/plugin';
++const withNextIntl = createNextIntlPlugin();
++
+ import type { NextConfig } from 'next';
+ import createMDX from '@next/mdx';
+ import postgres from 'postgres';
+@@ -34,4 +37,4 @@ const nextConfig: NextConfig = {
+ 
+ const withMDX = createMDX({});
+ 
+-export default withMDX(nextConfig);
++export default withNextIntl(withMDX(nextConfig));
+diff --git a/package.json b/package.json
+index 65783b1..f1444fb 100644
+--- a/package.json
++++ b/package.json
+@@ -16,7 +16,8 @@
+     "postgres": "^3.4.7",
+     "react": "19.1.0",
+     "react-dom": "19.1.0",
+-    "sugar-high": "^0.9.3"
++    "sugar-high": "^0.9.3",
++    "next-intl": "^4.0.0"
+   },
+   "devDependencies": {
+     "@types/node": "^22.15.29",

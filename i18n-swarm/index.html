@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>i18n-swarm — a code-side i18n retrofit that ends with a real next build</title>
+<meta name="description" content="A code-side localization agent for Next.js. It keys your hardcoded strings, wires next-intl, and ends its run with a green next build. Run over 8 real open-source apps: 0 corruptions in 1,364 edits, all still building."/>
+<link rel="canonical" href="https://greymoth-jp.github.io/i18n-swarm/"/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://greymoth-jp.github.io/i18n-swarm/"/>
+<meta property="og:title" content="i18n-swarm — code-side i18n that ends with a real next build"/>
+<meta property="og:description" content="8 real Next.js apps localized from the code side. 0 corruptions across 1,364 edits, all still next build green. The retrofit is the hook; the drift gate is the question."/>
+<meta property="og:image" content="https://greymoth-jp.github.io/i18n-swarm/assets/card.png"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="i18n-swarm — code-side i18n that ends with a real next build"/>
+<meta name="twitter:description" content="8 real Next.js apps localized from the code side. 0 corruptions across 1,364 edits, all still next build green."/>
+<meta name="twitter:image" content="https://greymoth-jp.github.io/i18n-swarm/assets/card.png"/>
+<style>
+  :root{
+    --paper:#f4f4f2; --paper2:#e9e9e6; --ink:#0e0e0e; --soft:#55554f; --rule:#c9c9c2;
+    --mono:'IBM Plex Mono','DM Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --disp:'Archivo','Arial Narrow',ui-sans-serif,system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:var(--mono); font-size:15px; line-height:1.6;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size:200px;
+  }
+  .wrap{max-width:840px;margin:0 auto;padding:22px 22px 90px}
+  .frame{border:2.5px solid var(--ink);box-shadow:0 0 0 2px var(--paper),0 0 0 4px var(--ink);background:var(--paper);padding:30px 28px}
+  a{color:var(--ink)}
+  .back{display:inline-block;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--soft);text-decoration:none;margin-bottom:16px}
+  .back:hover{color:var(--ink)}
+  .kicker{font-size:12px;letter-spacing:.34em;text-transform:uppercase;color:var(--soft)}
+  h1{font-family:var(--disp);font-weight:800;font-size:clamp(34px,6vw,58px);line-height:1.02;letter-spacing:-.02em;margin:10px 0 12px;text-transform:uppercase}
+  .lede{font-size:17px;max-width:60ch;margin:0 0 8px}
+  .lede b{background:var(--ink);color:var(--paper);padding:0 5px}
+  hr.rule{border:0;border-top:2px solid var(--ink);margin:26px 0}
+  .stats{display:flex;flex-wrap:wrap;gap:0;border:2px solid var(--ink);margin:24px 0}
+  .stat{flex:1 1 130px;padding:14px 16px;border-right:1px solid var(--ink)}
+  .stat:last-child{border-right:0}
+  .stat .n{font-family:var(--disp);font-weight:800;font-size:30px;line-height:1}
+  .stat .l{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--soft);margin-top:5px}
+  .clip{margin:24px 0;border:1px solid var(--ink);background:#fff}
+  .clip img{display:block;width:100%;height:auto}
+  .cap{font-size:12px;color:var(--soft);margin:6px 2px 0;letter-spacing:.04em}
+  .slab{background:var(--ink);color:#e9e9e6;padding:16px 18px;overflow:auto;font-size:12.5px;line-height:1.55;border:2px solid var(--ink);white-space:pre;tab-size:2;font-family:var(--mono)}
+  .slab .add{color:#c6f6c0}
+  .slab .del{color:#f3b3aa}
+  .slab .dim{color:#8a8a82}
+  .difftag{display:inline-block;background:var(--ink);color:var(--paper);font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:3px 9px;margin:18px 0 8px}
+  .difftag a{color:var(--paper);text-decoration:underline;text-underline-offset:2px}
+  h2{font-family:var(--disp);font-weight:800;text-transform:uppercase;font-size:22px;letter-spacing:-.01em;border-bottom:2px solid var(--ink);padding-bottom:6px;margin:36px 0 14px}
+  .lane{margin:16px 0}
+  .lane .tag{display:inline-block;background:var(--ink);color:var(--paper);font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:3px 9px;margin-bottom:8px}
+  ul.tick{list-style:none;margin:8px 0;padding:0}
+  ul.tick li{padding:5px 0 5px 22px;border-bottom:1px dotted var(--rule);position:relative}
+  ul.tick li::before{content:"+";position:absolute;left:0;font-weight:800}
+  ul.cut li::before{content:"\2014";left:0}
+  code{background:var(--paper2);border:1px solid var(--rule);padding:1px 5px}
+  .runs{font-size:13px;line-height:1.9}
+  .runs a{margin-right:4px}
+  .cta{border:2.5px solid var(--ink);padding:24px 22px;margin:34px 0 10px;background:var(--paper2)}
+  .cta h3{font-family:var(--disp);font-weight:800;text-transform:uppercase;font-size:20px;margin:0 0 6px}
+  .mailbtn{display:inline-block;margin-top:14px;padding:13px 24px;border:2.5px solid var(--ink);background:var(--ink);color:var(--paper);font-family:var(--disp);font-weight:800;text-transform:uppercase;letter-spacing:.07em;font-size:16px;text-decoration:none}
+  .mailbtn:hover{background:var(--paper);color:var(--ink)}
+  .alt{font-size:13px;color:var(--soft);margin-top:16px}
+  .alt code{background:var(--ink);color:var(--paper);border:0}
+  footer{margin-top:40px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:12px;color:var(--soft);border-top:2px solid var(--ink);padding-top:12px}
+  footer .gm{font-family:var(--disp);font-weight:800;color:var(--ink);font-size:15px;letter-spacing:.04em}
+</style>
+</head>
+<body>
+<div class="wrap"><div class="frame">
+
+  <a class="back" href="/">&larr; greymoth — proof</a>
+  <div class="kicker">i18n-swarm · code-side localization</div>
+  <h1>A merge-ready i18n PR<br/>for your Next.js app</h1>
+  <p class="lede">Point it at a repo. It keys the hardcoded strings, writes the locale files, wires next-intl, and ends its run with a real <code>next build</code>. <b>The retrofit is the free part.</b></p>
+
+  <div class="stats">
+    <div class="stat"><div class="n">8</div><div class="l">real OSS apps, untouched</div></div>
+    <div class="stat"><div class="n">0</div><div class="l">corruptions in 1,364 edits</div></div>
+    <div class="stat"><div class="n">8 / 8</div><div class="l">still next build green</div></div>
+    <div class="stat"><div class="n">~43%</div><div class="l">UI strings auto-keyed (avg)</div></div>
+  </div>
+
+  <p class="lede" style="font-size:15px;color:var(--soft)">I ran the packed CLI against 8 unmodified open-source Next.js App Router apps with no existing i18n: Vercel Commerce, Vercel Platforms, Magic UI, two shadcn dashboards, a ts-nextjs starter, a portfolio template, and leerob.io. Each one is a clean clone &mdash; baseline <code>next build</code>, the full pass, then a fresh install and <code>next build</code> to verify. 0 corruptions across 1,364 edits, every one still green afterward, an average 43% of UI strings auto-keyed and the rest handed back as a punch-list. Not a mockup. The per-app diffs and the full results table are linked below.</p>
+
+  <div class="clip">
+    <img src="./assets/card.png" alt="i18n-swarm verdict card: 0 corruptions across 1,364 rewrite edits, 8 real OSS Next.js apps, 8 of 8 still next build green, about 43 percent of UI strings auto-keyed"/>
+  </div>
+  <div class="cap">Aggregate over the 8 end-to-end apps. Full table, per-app counts and the honest out-of-scope notes: <a href="./assets/results.md">results.md</a></div>
+
+  <hr class="rule"/>
+
+  <h2>What the diff actually looks like</h2>
+  <p class="lede" style="font-size:15px;color:var(--soft)">Two real files from the run, verbatim. One per-string rewrite, one framework wire-up.</p>
+
+  <div class="difftag">vercel/platforms · ~6.7k&#9733; · <a href="./assets/diffs/platforms.diff">full diff</a></div>
+  <div class="slab"><span class="dim">app/admin/dashboard.tsx</span>
+  'use client';
+<span class="add">+ import { useTranslations } from 'next-intl';</span>
+
+  function DashboardHeader() {
+<span class="add">+   const t = useTranslations();</span>
+      return (
+<span class="del">-       &lt;h1 className="text-3xl font-bold"&gt;Subdomain Management&lt;/h1&gt;</span>
+<span class="add">+       &lt;h1 className="text-3xl font-bold"&gt;{t('dashboard.subdomain_management')}&lt;/h1&gt;</span>
+
+<span class="dim">app/layout.tsx  (framework wiring, done for you)</span>
+<span class="add">+ import { NextIntlClientProvider } from 'next-intl';</span>
+<span class="add">+ import { getMessages } from 'next-intl/server';</span>
+<span class="del">- export default function RootLayout({ children }) {</span>
+<span class="add">+ export default async function RootLayout({ children }) {</span>
+<span class="add">+   const messages = await getMessages();</span>
+      return (
+        &lt;body&gt;
+<span class="add">+         &lt;NextIntlClientProvider messages={messages}&gt;</span>
+            {children}
+<span class="add">+         &lt;/NextIntlClientProvider&gt;</span></div>
+
+  <div class="difftag">vercel/commerce · ~14.1k&#9733; · <a href="./assets/diffs/commerce.diff">full diff</a></div>
+  <div class="slab"><span class="dim">app/error.tsx</span>
+  "use client";
+<span class="add">+ import { useTranslations } from 'next-intl';</span>
+
+  export default function Error({ reset }) {
+<span class="add">+   const t = useTranslations();</span>
+      return (
+<span class="del">-     &lt;h2 className="text-xl font-bold"&gt;Oh no!&lt;/h2&gt;</span>
+<span class="add">+     &lt;h2 className="text-xl font-bold"&gt;{t('error.oh_no')}&lt;/h2&gt;</span>
+        &lt;button onClick={() =&gt; reset()}&gt;
+<span class="del">-       Try Again</span>
+<span class="add">+       {t('error.try_again')}</span>
+        &lt;/button&gt;</div>
+  <div class="cap">Every edit is re-parsed after it is written. A bad edit reverts instead of mangling the file &mdash; that is why the corruption count is 0 across all 1,364 edits. Prose, interpolated counts, and sentences with inline links are not guessed at; they go to the review queue.</div>
+
+  <hr class="rule"/>
+
+  <h2>Honest about the line</h2>
+  <div class="lane">
+    <span class="tag">it does</span>
+    <ul class="tick">
+      <li>key the clean labels and rewrite them to <code>t('key')</code></li>
+      <li>scaffold next-intl: nested messages, request config, plugin wrap, provider</li>
+      <li>install and run <code>next build</code>, and revert any edit that doesn't re-parse</li>
+      <li>detect an existing i18n setup and refuse, instead of double-wiring it</li>
+    </ul>
+  </div>
+  <div class="lane">
+    <span class="tag">it does not</span>
+    <ul class="tick cut">
+      <li>translate. Every ja key is seeded with the English fallback. Machine-translating Japanese is how you ship a homograph bug no compiler catches, so that stays human</li>
+      <li>split prose, interpolated counts, or sentences with inline links. Those become a punch-list, not a guess</li>
+      <li>claim test-verified. These templates have no unit tests, so the verdict is build-and-render verified, not test-verified</li>
+      <li>reach apps that need secrets or a workspace install. Two more apps (ai-chatbot, novel) rewrote with 0 corruptions but couldn't hit a headless build &mdash; that's in results.md too</li>
+    </ul>
+  </div>
+
+  <hr class="rule"/>
+
+  <h2>The part that doesn't end</h2>
+  <p class="lede">Localization rots the day after you finish it. Someone adds a button, ships the label hardcoded, and your other locales quietly fall behind. The retrofit fixes today. A drift gate would keep tomorrow from un-fixing it.</p>
+  <ul class="tick">
+    <li><b style="background:var(--ink);color:var(--paper);padding:0 4px">Drift gate</b> &mdash; a CI check that fails a PR when a new hardcoded UI string lands, and offers the keyed fix in the same diff</li>
+    <li>0 localization drifts to production, enforced where the regression actually enters: the pull request</li>
+  </ul>
+
+  <hr class="rule"/>
+
+  <h2>The full run</h2>
+  <p class="lede" style="font-size:15px;color:var(--soft)">Raw per-app diffs from the corpus, plus the results table. Read them, not me.</p>
+  <div class="runs">
+    <a href="./assets/results.md">results.md</a> &middot;
+    <a href="./assets/diffs/ts-starter.diff">ts-starter</a> &middot;
+    <a href="./assets/diffs/dillion-portfolio.diff">dillion-portfolio</a> &middot;
+    <a href="./assets/diffs/adm-dashboard.diff">adm-dashboard</a> &middot;
+    <a href="./assets/diffs/kiran-dashboard.diff">kiran-dashboard</a> &middot;
+    <a href="./assets/diffs/leerob.diff">leerob</a> &middot;
+    <a href="./assets/diffs/platforms.diff">platforms</a> &middot;
+    <a href="./assets/diffs/magicui.diff">magicui</a> &middot;
+    <a href="./assets/diffs/commerce.diff">commerce</a>
+  </div>
+
+  <div class="cta">
+    <h3>Which one would you use?</h3>
+    <p style="margin:0;color:var(--soft);font-size:14px">I'm trying to learn whether the one-shot <b style="background:var(--ink);color:var(--paper);padding:0 4px">retrofit</b> is the thing, or the recurring <b style="background:var(--ink);color:var(--paper);padding:0 4px">drift gate</b> is. Email me and tell me which &mdash; one word is plenty. I read every reply.</p>
+    <a class="mailbtn" href="mailto:greymoth@glovrex.com?subject=i18n-swarm&amp;body=I%27d%20use%20the%20(retrofit%20%2F%20drift-gate)%20because%3A%0A%0AMy%20stack%3A%20">Email me: retrofit or the gate</a>
+    <p class="alt">The CLI is <code>npx i18n-swarm ./your-app</code> &mdash; <span style="color:var(--soft)">open-sourcing soon, not published yet. If you want to try it before then, say so in the email.</span></p>
+  </div>
+
+  <footer>
+    <span class="gm">greymoth</span>
+    <span>next · build GREEN · the rest is a punch-list</span>
+  </footer>
+
+</div></div>
+</body>
+</html>

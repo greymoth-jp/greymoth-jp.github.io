@@ -1,0 +1,625 @@
+ app/error.tsx                            |  9 ++--
+ app/layout.tsx                           |  5 ++
+ app/product/[handle]/page.tsx            |  4 +-
+ app/search/layout.tsx                    |  4 +-
+ components/cart/add-to-cart.tsx          |  8 ++--
+ components/cart/delete-item-button.tsx   |  4 +-
+ components/cart/modal.tsx                |  8 ++--
+ components/layout/footer.tsx             | 10 ++--
+ components/layout/navbar/mobile-menu.tsx |  6 ++-
+ components/layout/navbar/search.tsx      |  7 ++-
+ components/layout/search/collections.tsx |  4 +-
+ i18n/request.ts                          | 11 +++++
+ messages/en.json                         | 42 ++++++++++++++++
+ messages/ja.json                         | 42 ++++++++++++++++
+ messages/translation-todo.json           | 82 ++++++++++++++++++++++++++++++++
+ next.config.ts                           |  7 ++-
+ package.json                             |  3 +-
+ pnpm-workspace.yaml                      |  2 +
+ 18 files changed, 233 insertions(+), 25 deletions(-)
+
+diff --git a/app/error.tsx b/app/error.tsx
+index 817ef75..b2b9d09 100644
+--- a/app/error.tsx
++++ b/app/error.tsx
+@@ -1,18 +1,19 @@
+ "use client";
++import { useTranslations } from 'next-intl';
+ 
+ export default function Error({ reset }: { reset: () => void }) {
++  const t = useTranslations();
+   return (
+     <div className="mx-auto my-4 flex max-w-xl flex-col rounded-lg border border-neutral-200 bg-white p-8 md:p-12 dark:border-neutral-800 dark:bg-black">
+-      <h2 className="text-xl font-bold">Oh no!</h2>
++      <h2 className="text-xl font-bold">{t('error.oh_no')}</h2>
+       <p className="my-2">
+-        There was an issue with our storefront. This could be a temporary issue,
+-        please try your action again.
++        {t('error.there_was_an_issue_with_our_storefront_t')}
+       </p>
+       <button
+         className="mx-auto mt-4 flex w-full items-center justify-center rounded-full bg-blue-600 p-4 tracking-wide text-white hover:opacity-90"
+         onClick={() => reset()}
+       >
+-        Try Again
++        {t('error.try_again')}
+       </button>
+     </div>
+   );
+diff --git a/app/layout.tsx b/app/layout.tsx
+index 4e4b4af..cba49f0 100644
+--- a/app/layout.tsx
++++ b/app/layout.tsx
+@@ -1,3 +1,5 @@
++import { NextIntlClientProvider } from 'next-intl';
++import { getMessages } from 'next-intl/server';
+ import { CartProvider } from "components/cart/cart-context";
+ import { Navbar } from "components/layout/navbar";
+ import { WelcomeToast } from "components/welcome-toast";
+@@ -27,12 +29,14 @@ export default async function RootLayout({
+ }: {
+   children: ReactNode;
+ }) {
++  const messages = await getMessages();
+   // Don't await the fetch, pass the Promise to the context provider
+   const cart = getCart();
+ 
+   return (
+     <html lang="en" className={GeistSans.variable}>
+       <body className="bg-neutral-50 text-black selection:bg-teal-300 dark:bg-neutral-900 dark:text-white dark:selection:bg-pink-500 dark:selection:text-white">
++        <NextIntlClientProvider messages={messages}>
+         <CartProvider cartPromise={cart}>
+           <Navbar />
+           <main>
+@@ -41,6 +45,7 @@ export default async function RootLayout({
+             <WelcomeToast />
+           </main>
+         </CartProvider>
++      </NextIntlClientProvider>
+       </body>
+     </html>
+   );
+diff --git a/app/product/[handle]/page.tsx b/app/product/[handle]/page.tsx
+index 715178d..58ceb2e 100644
+--- a/app/product/[handle]/page.tsx
++++ b/app/product/[handle]/page.tsx
+@@ -1,3 +1,4 @@
++import { getTranslations } from 'next-intl/server';
+ import { GridTileImage } from "components/grid/tile";
+ import Footer from "components/layout/footer";
+ import { Gallery } from "components/product/gallery";
+@@ -111,13 +112,14 @@ export default async function ProductPage(props: {
+ }
+ 
+ async function RelatedProducts({ id }: { id: string }) {
++  const t = await getTranslations();
+   const relatedProducts = await getProductRecommendations(id);
+ 
+   if (!relatedProducts.length) return null;
+ 
+   return (
+     <div className="py-8">
+-      <h2 className="mb-4 text-2xl font-bold">Related Products</h2>
++      <h2 className="mb-4 text-2xl font-bold">{t('page.related_products')}</h2>
+       <ul className="flex w-full gap-4 overflow-x-auto pt-1">
+         {relatedProducts.map((product) => (
+           <li
+diff --git a/app/search/layout.tsx b/app/search/layout.tsx
+index bec8710..e7ad738 100644
+--- a/app/search/layout.tsx
++++ b/app/search/layout.tsx
+@@ -1,3 +1,4 @@
++import { useTranslations } from 'next-intl';
+ import Footer from "components/layout/footer";
+ import Collections from "components/layout/search/collections";
+ import FilterList from "components/layout/search/filter";
+@@ -10,6 +11,7 @@ export default function SearchLayout({
+ }: {
+   children: React.ReactNode;
+ }) {
++  const t = useTranslations();
+   return (
+     <>
+       <div className="mx-auto flex max-w-(--breakpoint-2xl) flex-col gap-8 px-4 pb-4 text-black md:flex-row dark:text-white">
+@@ -22,7 +24,7 @@ export default function SearchLayout({
+           </Suspense>
+         </div>
+         <div className="order-none flex-none md:order-last md:w-[125px]">
+-          <FilterList list={sorting} title="Sort by" />
++          <FilterList list={sorting} title={t('layout.sort_by')} />
+         </div>
+       </div>
+       <Footer />
+diff --git a/components/cart/add-to-cart.tsx b/components/cart/add-to-cart.tsx
+index 8ab43e0..c3ea368 100644
+--- a/components/cart/add-to-cart.tsx
++++ b/components/cart/add-to-cart.tsx
+@@ -1,4 +1,5 @@
+ "use client";
++import { useTranslations } from 'next-intl';
+ 
+ import { PlusIcon } from "@heroicons/react/24/outline";
+ import clsx from "clsx";
+@@ -15,6 +16,7 @@ function SubmitButton({
+   availableForSale: boolean;
+   selectedVariantId: string | undefined;
+ }) {
++  const t = useTranslations();
+   const buttonClasses =
+     "relative flex w-full items-center justify-center rounded-full bg-blue-600 p-4 tracking-wide text-white";
+   const disabledClasses = "cursor-not-allowed opacity-60 hover:opacity-60";
+@@ -22,7 +24,7 @@ function SubmitButton({
+   if (!availableForSale) {
+     return (
+       <button disabled className={clsx(buttonClasses, disabledClasses)}>
+-        Out Of Stock
++        {t('add_to_cart.out_of_stock')}
+       </button>
+     );
+   }
+@@ -30,7 +32,7 @@ function SubmitButton({
+   if (!selectedVariantId) {
+     return (
+       <button
+-        aria-label="Please select an option"
++        aria-label={t('add_to_cart.please_select_an_option')}
+         disabled
+         className={clsx(buttonClasses, disabledClasses)}
+       >
+@@ -44,7 +46,7 @@ function SubmitButton({
+ 
+   return (
+     <button
+-      aria-label="Add to cart"
++      aria-label={t('add_to_cart.add_to_cart')}
+       className={clsx(buttonClasses, {
+         "hover:opacity-90": true,
+       })}
+diff --git a/components/cart/delete-item-button.tsx b/components/cart/delete-item-button.tsx
+index a5a18ca..eaf0d4d 100644
+--- a/components/cart/delete-item-button.tsx
++++ b/components/cart/delete-item-button.tsx
+@@ -1,4 +1,5 @@
+ "use client";
++import { useTranslations } from 'next-intl';
+ 
+ import { XMarkIcon } from "@heroicons/react/24/outline";
+ import { removeItem } from "components/cart/actions";
+@@ -12,6 +13,7 @@ export function DeleteItemButton({
+   item: CartItem;
+   optimisticUpdate: any;
+ }) {
++  const t = useTranslations();
+   const [message, formAction] = useActionState(removeItem, null);
+   const merchandiseId = item.merchandise.id;
+   const removeItemAction = formAction.bind(null, merchandiseId);
+@@ -25,7 +27,7 @@ export function DeleteItemButton({
+     >
+       <button
+         type="submit"
+-        aria-label="Remove cart item"
++        aria-label={t('delete_item_button.remove_cart_item')}
+         className="flex h-[24px] w-[24px] items-center justify-center rounded-full bg-neutral-500"
+       >
+         <XMarkIcon className="mx-[1px] h-4 w-4 text-white dark:text-black" />
+diff --git a/components/cart/modal.tsx b/components/cart/modal.tsx
+index da16a44..f41fb93 100644
+--- a/components/cart/modal.tsx
++++ b/components/cart/modal.tsx
+@@ -1,4 +1,5 @@
+ "use client";
++import { useTranslations } from 'next-intl';
+ 
+ import clsx from "clsx";
+ import { Dialog, Transition } from "@headlessui/react";
+@@ -22,6 +23,7 @@ type MerchandiseSearchParams = {
+ };
+ 
+ export default function CartModal() {
++  const t = useTranslations();
+   const { cart, updateCartItem } = useCart();
+   const [isOpen, setIsOpen] = useState(false);
+   const quantityRef = useRef(cart?.totalQuantity);
+@@ -49,7 +51,7 @@ export default function CartModal() {
+ 
+   return (
+     <>
+-      <button aria-label="Open cart" onClick={openCart}>
++      <button aria-label={t('modal.open_cart')} onClick={openCart}>
+         <OpenCart quantity={cart?.totalQuantity} />
+       </button>
+       <Transition show={isOpen}>
+@@ -76,8 +78,8 @@ export default function CartModal() {
+           >
+             <Dialog.Panel className="fixed bottom-0 right-0 top-0 flex h-full w-full flex-col border-l border-neutral-200 bg-white/80 p-6 text-black backdrop-blur-xl md:w-[390px] dark:border-neutral-700 dark:bg-black/80 dark:text-white">
+               <div className="flex items-center justify-between">
+-                <p className="text-lg font-semibold">My Cart</p>
+-                <button aria-label="Close cart" onClick={closeCart}>
++                <p className="text-lg font-semibold">{t('modal.my_cart')}</p>
++                <button aria-label={t('modal.close_cart')} onClick={closeCart}>
+                   <CloseCart />
+                 </button>
+               </div>
+diff --git a/components/layout/footer.tsx b/components/layout/footer.tsx
+index 9f0025d..ea3c8ef 100644
+--- a/components/layout/footer.tsx
++++ b/components/layout/footer.tsx
+@@ -1,3 +1,4 @@
++import { getTranslations } from 'next-intl/server';
+ import Link from "next/link";
+ 
+ import FooterMenu from "components/layout/footer-menu";
+@@ -8,6 +9,7 @@ import { Suspense } from "react";
+ const { COMPANY_NAME, SITE_NAME } = process.env;
+ 
+ export default async function Footer() {
++  const t = await getTranslations();
+   const currentYear = new Date().getFullYear();
+   const copyrightDate = 2023 + (currentYear > 2023 ? `-${currentYear}` : "");
+   const skeleton =
+@@ -44,12 +46,12 @@ export default async function Footer() {
+         <div className="md:ml-auto">
+           <a
+             className="flex h-8 w-max flex-none items-center justify-center rounded-md border border-neutral-200 bg-white text-xs text-black dark:border-neutral-700 dark:bg-black dark:text-white"
+-            aria-label="Deploy on Vercel"
++            aria-label={t('footer.deploy_on_vercel')}
+             href="https://vercel.com/templates/next.js/nextjs-commerce"
+           >
+             <span className="px-3">▲</span>
+             <hr className="h-full border-r border-neutral-200 dark:border-neutral-700" />
+-            <span className="px-3">Deploy</span>
++            <span className="px-3">{t('footer.deploy')}</span>
+           </a>
+         </div>
+       </div>
+@@ -64,11 +66,11 @@ export default async function Footer() {
+           </p>
+           <hr className="mx-4 hidden h-4 w-[1px] border-l border-neutral-400 md:inline-block" />
+           <p>
+-            <a href="https://github.com/vercel/commerce">View the source</a>
++            <a href="https://github.com/vercel/commerce">{t('footer.view_the_source')}</a>
+           </p>
+           <p className="md:ml-auto">
+             <a href="https://vercel.com" className="text-black dark:text-white">
+-              Created by ▲ Vercel
++              {t('footer.created_by_vercel')}
+             </a>
+           </p>
+         </div>
+diff --git a/components/layout/navbar/mobile-menu.tsx b/components/layout/navbar/mobile-menu.tsx
+index b1cf0e9..0e93027 100644
+--- a/components/layout/navbar/mobile-menu.tsx
++++ b/components/layout/navbar/mobile-menu.tsx
+@@ -1,4 +1,5 @@
+ "use client";
++import { useTranslations } from 'next-intl';
+ 
+ import { Dialog, Transition } from "@headlessui/react";
+ import Link from "next/link";
+@@ -10,6 +11,7 @@ import { Menu } from "lib/shopify/types";
+ import Search, { SearchSkeleton } from "./search";
+ 
+ export default function MobileMenu({ menu }: { menu: Menu[] }) {
++  const t = useTranslations();
+   const pathname = usePathname();
+   const searchParams = useSearchParams();
+   const [isOpen, setIsOpen] = useState(false);
+@@ -34,7 +36,7 @@ export default function MobileMenu({ menu }: { menu: Menu[] }) {
+     <>
+       <button
+         onClick={openMobileMenu}
+-        aria-label="Open mobile menu"
++        aria-label={t('mobile_menu.open_mobile_menu')}
+         className="flex h-11 w-11 items-center justify-center rounded-md border border-neutral-200 text-black transition-colors md:hidden dark:border-neutral-700 dark:text-white"
+       >
+         <Bars3Icon className="h-4" />
+@@ -66,7 +68,7 @@ export default function MobileMenu({ menu }: { menu: Menu[] }) {
+                 <button
+                   className="mb-4 flex h-11 w-11 items-center justify-center rounded-md border border-neutral-200 text-black transition-colors dark:border-neutral-700 dark:text-white"
+                   onClick={closeMobileMenu}
+-                  aria-label="Close mobile menu"
++                  aria-label={t('mobile_menu.close_mobile_menu')}
+                 >
+                   <XMarkIcon className="h-6" />
+                 </button>
+diff --git a/components/layout/navbar/search.tsx b/components/layout/navbar/search.tsx
+index df33816..f6d789a 100644
+--- a/components/layout/navbar/search.tsx
++++ b/components/layout/navbar/search.tsx
+@@ -1,10 +1,12 @@
+ "use client";
++import { useTranslations } from 'next-intl';
+ 
+ import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+ import Form from "next/form";
+ import { useSearchParams } from "next/navigation";
+ 
+ export default function Search() {
++  const t = useTranslations();
+   const searchParams = useSearchParams();
+ 
+   return (
+@@ -16,7 +18,7 @@ export default function Search() {
+         key={searchParams?.get("q")}
+         type="text"
+         name="q"
+-        placeholder="Search for products..."
++        placeholder={t('search.search_for_products')}
+         autoComplete="off"
+         defaultValue={searchParams?.get("q") || ""}
+         className="text-md w-full rounded-lg border bg-white px-4 py-2 text-black placeholder:text-neutral-500 md:text-sm dark:border-neutral-800 dark:bg-transparent dark:text-white dark:placeholder:text-neutral-400"
+@@ -29,10 +31,11 @@ export default function Search() {
+ }
+ 
+ export function SearchSkeleton() {
++  const t = useTranslations();
+   return (
+     <form className="w-max-[550px] relative w-full lg:w-80 xl:w-full">
+       <input
+-        placeholder="Search for products..."
++        placeholder={t('search.search_for_products')}
+         className="w-full rounded-lg border bg-white px-4 py-2 text-sm text-black placeholder:text-neutral-500 dark:border-neutral-800 dark:bg-transparent dark:text-white dark:placeholder:text-neutral-400"
+       />
+       <div className="absolute right-0 top-0 mr-3 flex h-full items-center">
+diff --git a/components/layout/search/collections.tsx b/components/layout/search/collections.tsx
+index ec1889f..c79b310 100644
+--- a/components/layout/search/collections.tsx
++++ b/components/layout/search/collections.tsx
+@@ -1,3 +1,4 @@
++import { getTranslations } from 'next-intl/server';
+ import clsx from "clsx";
+ import { Suspense } from "react";
+ 
+@@ -5,8 +6,9 @@ import { getCollections } from "lib/shopify";
+ import FilterList from "./filter";
+ 
+ async function CollectionList() {
++  const t = await getTranslations();
+   const collections = await getCollections();
+-  return <FilterList list={collections} title="Collections" />;
++  return <FilterList list={collections} title={t('collections.collections')} />;
+ }
+ 
+ const skeleton = "mb-3 h-4 w-5/6 animate-pulse rounded-sm";
+diff --git a/i18n/request.ts b/i18n/request.ts
+new file mode 100644
+index 0000000..50e010c
+--- /dev/null
++++ b/i18n/request.ts
+@@ -0,0 +1,11 @@
++import { getRequestConfig } from 'next-intl/server';
++
++// Single-locale setup (no locale routing): the agent localizes the code and seeds the
++// messages; negotiating / switching the active locale is left to the team.
++export default getRequestConfig(async () => {
++  const locale = 'en';
++  return {
++    locale,
++    messages: (await import(`../messages/${locale}.json`)).default,
++  };
++});
+diff --git a/messages/en.json b/messages/en.json
+new file mode 100644
+index 0000000..716ce48
+--- /dev/null
++++ b/messages/en.json
+@@ -0,0 +1,42 @@
++{
++  "add_to_cart": {
++    "add_to_cart": "Add to cart",
++    "out_of_stock": "Out Of Stock",
++    "please_select_an_option": "Please select an option"
++  },
++  "collections": {
++    "collections": "Collections"
++  },
++  "delete_item_button": {
++    "remove_cart_item": "Remove cart item"
++  },
++  "error": {
++    "oh_no": "Oh no!",
++    "there_was_an_issue_with_our_storefront_t": "There was an issue with our storefront. This could be a temporary issue, please try your action again.",
++    "try_again": "Try Again"
++  },
++  "footer": {
++    "created_by_vercel": "Created by ▲ Vercel",
++    "deploy": "Deploy",
++    "deploy_on_vercel": "Deploy on Vercel",
++    "view_the_source": "View the source"
++  },
++  "layout": {
++    "sort_by": "Sort by"
++  },
++  "mobile_menu": {
++    "close_mobile_menu": "Close mobile menu",
++    "open_mobile_menu": "Open mobile menu"
++  },
++  "modal": {
++    "close_cart": "Close cart",
++    "my_cart": "My Cart",
++    "open_cart": "Open cart"
++  },
++  "page": {
++    "related_products": "Related Products"
++  },
++  "search": {
++    "search_for_products": "Search for products..."
++  }
++}
+diff --git a/messages/ja.json b/messages/ja.json
+new file mode 100644
+index 0000000..716ce48
+--- /dev/null
++++ b/messages/ja.json
+@@ -0,0 +1,42 @@
++{
++  "add_to_cart": {
++    "add_to_cart": "Add to cart",
++    "out_of_stock": "Out Of Stock",
++    "please_select_an_option": "Please select an option"
++  },
++  "collections": {
++    "collections": "Collections"
++  },
++  "delete_item_button": {
++    "remove_cart_item": "Remove cart item"
++  },
++  "error": {
++    "oh_no": "Oh no!",
++    "there_was_an_issue_with_our_storefront_t": "There was an issue with our storefront. This could be a temporary issue, please try your action again.",
++    "try_again": "Try Again"
++  },
++  "footer": {
++    "created_by_vercel": "Created by ▲ Vercel",
++    "deploy": "Deploy",
++    "deploy_on_vercel": "Deploy on Vercel",
++    "view_the_source": "View the source"
++  },
++  "layout": {
++    "sort_by": "Sort by"
++  },
++  "mobile_menu": {
++    "close_mobile_menu": "Close mobile menu",
++    "open_mobile_menu": "Open mobile menu"
++  },
++  "modal": {
++    "close_cart": "Close cart",
++    "my_cart": "My Cart",
++    "open_cart": "Open cart"
++  },
++  "page": {
++    "related_products": "Related Products"
++  },
++  "search": {
++    "search_for_products": "Search for products..."
++  }
++}
+diff --git a/messages/translation-todo.json b/messages/translation-todo.json
+new file mode 100644
+index 0000000..3e23db2
+--- /dev/null
++++ b/messages/translation-todo.json
+@@ -0,0 +1,82 @@
++[
++  {
++    "key": "add_to_cart.add_to_cart",
++    "en": "Add to cart"
++  },
++  {
++    "key": "add_to_cart.out_of_stock",
++    "en": "Out Of Stock"
++  },
++  {
++    "key": "add_to_cart.please_select_an_option",
++    "en": "Please select an option"
++  },
++  {
++    "key": "collections.collections",
++    "en": "Collections"
++  },
++  {
++    "key": "delete_item_button.remove_cart_item",
++    "en": "Remove cart item"
++  },
++  {
++    "key": "error.oh_no",
++    "en": "Oh no!"
++  },
++  {
++    "key": "error.there_was_an_issue_with_our_storefront_t",
++    "en": "There was an issue with our storefront. This could be a temporary issue, please try your action again."
++  },
++  {
++    "key": "error.try_again",
++    "en": "Try Again"
++  },
++  {
++    "key": "footer.created_by_vercel",
++    "en": "Created by ▲ Vercel"
++  },
++  {
++    "key": "footer.deploy",
++    "en": "Deploy"
++  },
++  {
++    "key": "footer.deploy_on_vercel",
++    "en": "Deploy on Vercel"
++  },
++  {
++    "key": "footer.view_the_source",
++    "en": "View the source"
++  },
++  {
++    "key": "layout.sort_by",
++    "en": "Sort by"
++  },
++  {
++    "key": "mobile_menu.close_mobile_menu",
++    "en": "Close mobile menu"
++  },
++  {
++    "key": "mobile_menu.open_mobile_menu",
++    "en": "Open mobile menu"
++  },
++  {
++    "key": "modal.close_cart",
++    "en": "Close cart"
++  },
++  {
++    "key": "modal.my_cart",
++    "en": "My Cart"
++  },
++  {
++    "key": "modal.open_cart",
++    "en": "Open cart"
++  },
++  {
++    "key": "page.related_products",
++    "en": "Related Products"
++  },
++  {
++    "key": "search.search_for_products",
++    "en": "Search for products..."
++  }
++]
+diff --git a/next.config.ts b/next.config.ts
+index cc59ea7..fccfb9b 100644
+--- a/next.config.ts
++++ b/next.config.ts
+@@ -1,4 +1,7 @@
+-export default {
++import createNextIntlPlugin from 'next-intl/plugin';
++const withNextIntl = createNextIntlPlugin();
++
++export default withNextIntl({
+   experimental: {
+     ppr: true,
+     inlineCss: true,
+@@ -14,4 +17,4 @@ export default {
+       },
+     ],
+   },
+-};
++});
+diff --git a/package.json b/package.json
+index 2a8a76e..f054f5e 100644
+--- a/package.json
++++ b/package.json
+@@ -16,7 +16,8 @@
+     "next": "15.6.0-canary.60",
+     "react": "19.0.0",
+     "react-dom": "19.0.0",
+-    "sonner": "^2.0.1"
++    "sonner": "^2.0.1",
++    "next-intl": "^4.0.0"
+   },
+   "devDependencies": {
+     "@tailwindcss/container-queries": "^0.1.1",
+diff --git a/pnpm-workspace.yaml b/pnpm-workspace.yaml
+new file mode 100644
+index 0000000..ee81e4e
+--- /dev/null
++++ b/pnpm-workspace.yaml
+@@ -0,0 +1,2 @@
++allowBuilds:
++  sharp: set this to true or false

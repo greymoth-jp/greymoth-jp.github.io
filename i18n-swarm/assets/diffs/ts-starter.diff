@@ -1,0 +1,966 @@
+ messages/en.json               |  58 ++++++++++++
+ messages/ja.json               |  58 ++++++++++++
+ messages/translation-todo.json | 202 +++++++++++++++++++++++++++++++++++++++++
+ next-env.d.ts                  |   1 +
+ next.config.js                 |   5 +-
+ package.json                   |   3 +-
+ src/app/components/page.tsx    | 159 ++++++++++++++++----------------
+ src/app/error.tsx              |   6 +-
+ src/app/layout.tsx             |   9 +-
+ src/app/not-found.tsx          |   6 +-
+ src/app/page.tsx               |  10 +-
+ src/i18n/request.ts            |  11 +++
+ 12 files changed, 435 insertions(+), 93 deletions(-)
+
+diff --git a/messages/en.json b/messages/en.json
+new file mode 100644
+index 0000000..e43f619
+--- /dev/null
++++ b/messages/en.json
+@@ -0,0 +1,58 @@
++{
++  "error": {
++    "oops_something_went_wrong": "Oops, something went wrong!",
++    "try_again": "Try again"
++  },
++  "not_found": {
++    "back_to_home": "Back to home",
++    "page_not_found": "Page Not Found"
++  },
++  "page": {
++    "add_styling_on_top_of_unstyledlink_givin": "Add styling on top of UnstyledLink, giving a primary color to the link.",
++    "add_styling_on_top_of_unstyledlink_givin_2": "Add styling on top of UnstyledLink, giving a dotted and animated underline.",
++    "arrowlink": "ArrowLink",
++    "back_to_home": "Back to Home",
++    "basic_variant": "Basic Variant",
++    "built_in_components": "Built-in Components",
++    "button": "Button",
++    "button_styled_link_with_3_variants": "Button styled link with 3 variants.",
++    "button_with_a_text_style": "Button with a text style",
++    "button_with_only_icon_inside": "Button with only icon inside",
++    "buttonlink": "ButtonLink",
++    "check_list_of_colors": "Check list of colors",
++    "custom_404_page": "Custom 404 Page",
++    "customize_colors": "Customize Colors",
++    "dark_variant": "Dark Variant",
++    "deploy_with_vercel": "Deploy with Vercel",
++    "direction_left": "Direction Left",
++    "direction_right": "Direction Right",
++    "disabled": "Disabled",
++    "ghost_variant": "Ghost Variant",
++    "icon": "Icon",
++    "iconbutton": "IconButton",
++    "internal_links": "Internal Links",
++    "light_variant": "Light Variant",
++    "next_image": "Next Image",
++    "next_image_with_default_props_and_skelet": "Next Image with default props and skeleton animation",
++    "next_js_tailwind_css_typescript_starter": "Next.js + Tailwind CSS + TypeScript Starter",
++    "no_style_applied_differentiate_internal": "No style applied, differentiate internal and outside links, give custom cursor for outside links.",
++    "ordinary_button_with_style": "Ordinary button with style.",
++    "outline_variant": "Outline Variant",
++    "outside_links": "Outside Links",
++    "polymorphic": "Polymorphic",
++    "primary_variant": "Primary Variant",
++    "primarylink": "PrimaryLink",
++    "see_all_components": "See all components",
++    "see_the_repository": "See the repository",
++    "skeleton": "Skeleton",
++    "skeleton_with_shimmer_effect": "Skeleton with shimmer effect",
++    "small_size": "Small Size",
++    "styled_404_page_with_some_animation": "Styled 404 page with some animation.",
++    "textbutton": "TextButton",
++    "underlinelink": "UnderlineLink",
++    "unstyledlink": "UnstyledLink",
++    "useful_for_indicating_navigation_i_use_t": "Useful for indicating navigation, I use this quite a lot, so why not build a component with some whimsy touch?",
++    "visit_the_404_page": "Visit the 404 page",
++    "you_can_change_primary_color_to_any_tail": "You can change primary color to any Tailwind CSS colors. See globals.css to change your color."
++  }
++}
+diff --git a/messages/ja.json b/messages/ja.json
+new file mode 100644
+index 0000000..e43f619
+--- /dev/null
++++ b/messages/ja.json
+@@ -0,0 +1,58 @@
++{
++  "error": {
++    "oops_something_went_wrong": "Oops, something went wrong!",
++    "try_again": "Try again"
++  },
++  "not_found": {
++    "back_to_home": "Back to home",
++    "page_not_found": "Page Not Found"
++  },
++  "page": {
++    "add_styling_on_top_of_unstyledlink_givin": "Add styling on top of UnstyledLink, giving a primary color to the link.",
++    "add_styling_on_top_of_unstyledlink_givin_2": "Add styling on top of UnstyledLink, giving a dotted and animated underline.",
++    "arrowlink": "ArrowLink",
++    "back_to_home": "Back to Home",
++    "basic_variant": "Basic Variant",
++    "built_in_components": "Built-in Components",
++    "button": "Button",
++    "button_styled_link_with_3_variants": "Button styled link with 3 variants.",
++    "button_with_a_text_style": "Button with a text style",
++    "button_with_only_icon_inside": "Button with only icon inside",
++    "buttonlink": "ButtonLink",
++    "check_list_of_colors": "Check list of colors",
++    "custom_404_page": "Custom 404 Page",
++    "customize_colors": "Customize Colors",
++    "dark_variant": "Dark Variant",
++    "deploy_with_vercel": "Deploy with Vercel",
++    "direction_left": "Direction Left",
++    "direction_right": "Direction Right",
++    "disabled": "Disabled",
++    "ghost_variant": "Ghost Variant",
++    "icon": "Icon",
++    "iconbutton": "IconButton",
++    "internal_links": "Internal Links",
++    "light_variant": "Light Variant",
++    "next_image": "Next Image",
++    "next_image_with_default_props_and_skelet": "Next Image with default props and skeleton animation",
++    "next_js_tailwind_css_typescript_starter": "Next.js + Tailwind CSS + TypeScript Starter",
++    "no_style_applied_differentiate_internal": "No style applied, differentiate internal and outside links, give custom cursor for outside links.",
++    "ordinary_button_with_style": "Ordinary button with style.",
++    "outline_variant": "Outline Variant",
++    "outside_links": "Outside Links",
++    "polymorphic": "Polymorphic",
++    "primary_variant": "Primary Variant",
++    "primarylink": "PrimaryLink",
++    "see_all_components": "See all components",
++    "see_the_repository": "See the repository",
++    "skeleton": "Skeleton",
++    "skeleton_with_shimmer_effect": "Skeleton with shimmer effect",
++    "small_size": "Small Size",
++    "styled_404_page_with_some_animation": "Styled 404 page with some animation.",
++    "textbutton": "TextButton",
++    "underlinelink": "UnderlineLink",
++    "unstyledlink": "UnstyledLink",
++    "useful_for_indicating_navigation_i_use_t": "Useful for indicating navigation, I use this quite a lot, so why not build a component with some whimsy touch?",
++    "visit_the_404_page": "Visit the 404 page",
++    "you_can_change_primary_color_to_any_tail": "You can change primary color to any Tailwind CSS colors. See globals.css to change your color."
++  }
++}
+diff --git a/messages/translation-todo.json b/messages/translation-todo.json
+new file mode 100644
+index 0000000..657b057
+--- /dev/null
++++ b/messages/translation-todo.json
+@@ -0,0 +1,202 @@
++[
++  {
++    "key": "error.oops_something_went_wrong",
++    "en": "Oops, something went wrong!"
++  },
++  {
++    "key": "error.try_again",
++    "en": "Try again"
++  },
++  {
++    "key": "not_found.back_to_home",
++    "en": "Back to home"
++  },
++  {
++    "key": "not_found.page_not_found",
++    "en": "Page Not Found"
++  },
++  {
++    "key": "page.add_styling_on_top_of_unstyledlink_givin",
++    "en": "Add styling on top of UnstyledLink, giving a primary color to the link."
++  },
++  {
++    "key": "page.add_styling_on_top_of_unstyledlink_givin_2",
++    "en": "Add styling on top of UnstyledLink, giving a dotted and animated underline."
++  },
++  {
++    "key": "page.arrowlink",
++    "en": "ArrowLink"
++  },
++  {
++    "key": "page.back_to_home",
++    "en": "Back to Home"
++  },
++  {
++    "key": "page.basic_variant",
++    "en": "Basic Variant"
++  },
++  {
++    "key": "page.built_in_components",
++    "en": "Built-in Components"
++  },
++  {
++    "key": "page.button",
++    "en": "Button"
++  },
++  {
++    "key": "page.button_styled_link_with_3_variants",
++    "en": "Button styled link with 3 variants."
++  },
++  {
++    "key": "page.button_with_a_text_style",
++    "en": "Button with a text style"
++  },
++  {
++    "key": "page.button_with_only_icon_inside",
++    "en": "Button with only icon inside"
++  },
++  {
++    "key": "page.buttonlink",
++    "en": "ButtonLink"
++  },
++  {
++    "key": "page.check_list_of_colors",
++    "en": "Check list of colors"
++  },
++  {
++    "key": "page.custom_404_page",
++    "en": "Custom 404 Page"
++  },
++  {
++    "key": "page.customize_colors",
++    "en": "Customize Colors"
++  },
++  {
++    "key": "page.dark_variant",
++    "en": "Dark Variant"
++  },
++  {
++    "key": "page.deploy_with_vercel",
++    "en": "Deploy with Vercel"
++  },
++  {
++    "key": "page.direction_left",
++    "en": "Direction Left"
++  },
++  {
++    "key": "page.direction_right",
++    "en": "Direction Right"
++  },
++  {
++    "key": "page.disabled",
++    "en": "Disabled"
++  },
++  {
++    "key": "page.ghost_variant",
++    "en": "Ghost Variant"
++  },
++  {
++    "key": "page.icon",
++    "en": "Icon"
++  },
++  {
++    "key": "page.iconbutton",
++    "en": "IconButton"
++  },
++  {
++    "key": "page.internal_links",
++    "en": "Internal Links"
++  },
++  {
++    "key": "page.light_variant",
++    "en": "Light Variant"
++  },
++  {
++    "key": "page.next_image",
++    "en": "Next Image"
++  },
++  {
++    "key": "page.next_image_with_default_props_and_skelet",
++    "en": "Next Image with default props and skeleton animation"
++  },
++  {
++    "key": "page.next_js_tailwind_css_typescript_starter",
++    "en": "Next.js + Tailwind CSS + TypeScript Starter"
++  },
++  {
++    "key": "page.no_style_applied_differentiate_internal",
++    "en": "No style applied, differentiate internal and outside links, give custom cursor for outside links."
++  },
++  {
++    "key": "page.ordinary_button_with_style",
++    "en": "Ordinary button with style."
++  },
++  {
++    "key": "page.outline_variant",
++    "en": "Outline Variant"
++  },
++  {
++    "key": "page.outside_links",
++    "en": "Outside Links"
++  },
++  {
++    "key": "page.polymorphic",
++    "en": "Polymorphic"
++  },
++  {
++    "key": "page.primary_variant",
++    "en": "Primary Variant"
++  },
++  {
++    "key": "page.primarylink",
++    "en": "PrimaryLink"
++  },
++  {
++    "key": "page.see_all_components",
++    "en": "See all components"
++  },
++  {
++    "key": "page.see_the_repository",
++    "en": "See the repository"
++  },
++  {
++    "key": "page.skeleton",
++    "en": "Skeleton"
++  },
++  {
++    "key": "page.skeleton_with_shimmer_effect",
++    "en": "Skeleton with shimmer effect"
++  },
++  {
++    "key": "page.small_size",
++    "en": "Small Size"
++  },
++  {
++    "key": "page.styled_404_page_with_some_animation",
++    "en": "Styled 404 page with some animation."
++  },
++  {
++    "key": "page.textbutton",
++    "en": "TextButton"
++  },
++  {
++    "key": "page.underlinelink",
++    "en": "UnderlineLink"
++  },
++  {
++    "key": "page.unstyledlink",
++    "en": "UnstyledLink"
++  },
++  {
++    "key": "page.useful_for_indicating_navigation_i_use_t",
++    "en": "Useful for indicating navigation, I use this quite a lot, so why not build a component with some whimsy touch?"
++  },
++  {
++    "key": "page.visit_the_404_page",
++    "en": "Visit the 404 page"
++  },
++  {
++    "key": "page.you_can_change_primary_color_to_any_tail",
++    "en": "You can change primary color to any Tailwind CSS colors. See globals.css to change your color."
++  }
++]
+diff --git a/next-env.d.ts b/next-env.d.ts
+index 1b3be08..830fb59 100644
+--- a/next-env.d.ts
++++ b/next-env.d.ts
+@@ -1,5 +1,6 @@
+ /// <reference types="next" />
+ /// <reference types="next/image-types/global" />
++/// <reference path="./.next/types/routes.d.ts" />
+ 
+ // NOTE: This file should not be edited
+ // see https://nextjs.org/docs/app/api-reference/config/typescript for more information.
+diff --git a/next.config.js b/next.config.js
+index 6a4c4b4..91ae849 100644
+--- a/next.config.js
++++ b/next.config.js
+@@ -1,3 +1,6 @@
++const createNextIntlPlugin = require('next-intl/plugin');
++const withNextIntl = createNextIntlPlugin();
++
+ /** @type {import('next').NextConfig} */
+ const nextConfig = {
+   eslint: {
+@@ -49,4 +52,4 @@ const nextConfig = {
+   },
+ };
+ 
+-module.exports = nextConfig;
++module.exports = withNextIntl(nextConfig);
+diff --git a/package.json b/package.json
+index 429309f..6bb22fb 100644
+--- a/package.json
++++ b/package.json
+@@ -25,7 +25,8 @@
+     "react-dom": "^19.1.0",
+     "react-icons": "^5.5.0",
+     "tailwind-merge": "^2.6.0",
+-    "zod": "^3.24.1"
++    "zod": "^3.24.1",
++    "next-intl": "^4.0.0"
+   },
+   "devDependencies": {
+     "@commitlint/cli": "^16.3.0",
+diff --git a/src/app/components/page.tsx b/src/app/components/page.tsx
+index 393fff8..fb0ac63 100644
+--- a/src/app/components/page.tsx
++++ b/src/app/components/page.tsx
+@@ -1,4 +1,5 @@
+ 'use client';
++import { useTranslations } from 'next-intl';
+ 
+ import clsx from 'clsx';
+ import {
+@@ -25,6 +26,7 @@ import Skeleton from '@/components/Skeleton';
+ type Color = (typeof colorList)[number];
+ 
+ export default function ComponentPage() {
++  const t = useTranslations();
+   const [mode, setMode] = React.useState<'dark' | 'light'>('light');
+   const [color, setColor] = React.useState<Color>('sky');
+   function toggleMode() {
+@@ -44,9 +46,9 @@ export default function ComponentPage() {
+             mode === 'dark' ? 'text-white' : 'text-black'
+           )}
+         >
+-          <h1>Built-in Components</h1>
++          <h1>{t('page.built_in_components')}</h1>
+           <ArrowLink direction='left' className='mt-2' href='/'>
+-            Back to Home
++            {t('page.back_to_home')}
+           </ArrowLink>
+ 
+           <div className='mt-8 flex flex-wrap gap-2'>
+@@ -61,10 +63,9 @@ export default function ComponentPage() {
+ 
+           <ol className='mt-8 space-y-6'>
+             <li className='space-y-2'>
+-              <h2 className='text-lg md:text-xl'>Customize Colors</h2>
++              <h2 className='text-lg md:text-xl'>{t('page.customize_colors')}</h2>
+               <p className={clsx('mt-1! text-sm', textColor)}>
+-                You can change primary color to any Tailwind CSS colors. See
+-                globals.css to change your color.
++                {t('page.you_can_change_primary_color_to_any_tail')}
+               </p>
+               <div className='flex flex-wrap gap-2'>
+                 <select
+@@ -87,7 +88,7 @@ export default function ComponentPage() {
+                   ))}
+                 </select>
+                 <ButtonLink href='https://github.com/theodorusclarence/ts-nextjs-tailwind-starter/blob/main/src/styles/colors.css'>
+-                  Check list of colors
++                  {t('page.check_list_of_colors')}
+                 </ButtonLink>
+               </div>
+               <div className='flex flex-wrap gap-2 text-xs font-medium'>
+@@ -127,61 +128,57 @@ export default function ComponentPage() {
+               </div>
+             </li>
+             <li className='space-y-2'>
+-              <h2 className='text-lg md:text-xl'>UnstyledLink</h2>
++              <h2 className='text-lg md:text-xl'>{t('page.unstyledlink')}</h2>
+               <p className={clsx('mt-1! text-sm', textColor)}>
+-                No style applied, differentiate internal and outside links, give
+-                custom cursor for outside links.
++                {t('page.no_style_applied_differentiate_internal')}
+               </p>
+               <div className='space-x-2'>
+-                <UnstyledLink href='/'>Internal Links</UnstyledLink>
++                <UnstyledLink href='/'>{t('page.internal_links')}</UnstyledLink>
+                 <UnstyledLink href='https://theodorusclarence.com'>
+-                  Outside Links
++                  {t('page.outside_links')}
+                 </UnstyledLink>
+               </div>
+             </li>
+             <li className='space-y-2'>
+-              <h2 className='text-lg md:text-xl'>PrimaryLink</h2>
++              <h2 className='text-lg md:text-xl'>{t('page.primarylink')}</h2>
+               <p className={clsx('mt-1! text-sm', textColor)}>
+-                Add styling on top of UnstyledLink, giving a primary color to
+-                the link.
++                {t('page.add_styling_on_top_of_unstyledlink_givin')}
+               </p>
+               <div className='space-x-2'>
+-                <PrimaryLink href='/'>Internal Links</PrimaryLink>
++                <PrimaryLink href='/'>{t('page.internal_links')}</PrimaryLink>
+                 <PrimaryLink href='https://theodorusclarence.com'>
+-                  Outside Links
++                  {t('page.outside_links')}
+                 </PrimaryLink>
+               </div>
+             </li>
+             <li className='space-y-2'>
+-              <h2 className='text-lg md:text-xl'>UnderlineLink</h2>
++              <h2 className='text-lg md:text-xl'>{t('page.underlinelink')}</h2>
+               <p className={clsx('mt-1! text-sm', textColor)}>
+-                Add styling on top of UnstyledLink, giving a dotted and animated
+-                underline.
++                {t('page.add_styling_on_top_of_unstyledlink_givin_2')}
+               </p>
+               <div className='space-x-2'>
+-                <UnderlineLink href='/'>Internal Links</UnderlineLink>
++                <UnderlineLink href='/'>{t('page.internal_links')}</UnderlineLink>
+                 <UnderlineLink href='https://theodorusclarence.com'>
+-                  Outside Links
++                  {t('page.outside_links')}
+                 </UnderlineLink>
+               </div>
+             </li>
+             <li className='space-y-2'>
+-              <h2 className='text-lg md:text-xl'>ArrowLink</h2>
++              <h2 className='text-lg md:text-xl'>{t('page.arrowlink')}</h2>
+               <p className={clsx('mt-1! text-sm', textColor)}>
+-                Useful for indicating navigation, I use this quite a lot, so why
+-                not build a component with some whimsy touch?
++                {t('page.useful_for_indicating_navigation_i_use_t')}
+               </p>
+               <div className='flex flex-wrap items-center gap-4'>
+                 <ArrowLink href='/' direction='left'>
+-                  Direction Left
++                  {t('page.direction_left')}
+                 </ArrowLink>
+-                <ArrowLink href='/'>Direction Right</ArrowLink>
++                <ArrowLink href='/'>{t('page.direction_right')}</ArrowLink>
+                 <ArrowLink
+                   as={UnstyledLink}
+                   className='inline-flex items-center'
+                   href='/'
+                 >
+-                  Polymorphic
++                  {t('page.polymorphic')}
+                 </ArrowLink>
+                 <ArrowLink
+                   as={ButtonLink}
+@@ -189,62 +186,62 @@ export default function ComponentPage() {
+                   className='inline-flex items-center'
+                   href='/'
+                 >
+-                  Polymorphic
++                  {t('page.polymorphic')}
+                 </ArrowLink>
+               </div>
+             </li>
+             <li className='space-y-2'>
+-              <h2 className='text-lg md:text-xl'>ButtonLink</h2>
++              <h2 className='text-lg md:text-xl'>{t('page.buttonlink')}</h2>
+               <p className={clsx('mt-1! text-sm', textColor)}>
+-                Button styled link with 3 variants.
++                {t('page.button_styled_link_with_3_variants')}
+               </p>
+               <div className='flex flex-wrap gap-2'>
+                 <ButtonLink
+                   variant='primary'
+                   href='https://theodorusclarence.com'
+                 >
+-                  Primary Variant
++                  {t('page.primary_variant')}
+                 </ButtonLink>
+                 <ButtonLink
+                   variant='outline'
+                   isDarkBg={mode === 'dark'}
+                   href='https://theodorusclarence.com'
+                 >
+-                  Outline Variant
++                  {t('page.outline_variant')}
+                 </ButtonLink>
+                 <ButtonLink
+                   variant='ghost'
+                   isDarkBg={mode === 'dark'}
+                   href='https://theodorusclarence.com'
+                 >
+-                  Ghost Variant
++                  {t('page.ghost_variant')}
+                 </ButtonLink>
+                 <ButtonLink variant='dark' href='https://theodorusclarence.com'>
+-                  Dark Variant
++                  {t('page.dark_variant')}
+                 </ButtonLink>
+                 <ButtonLink
+                   variant='light'
+                   href='https://theodorusclarence.com'
+                 >
+-                  Light Variant
++                  {t('page.light_variant')}
+                 </ButtonLink>
+               </div>
+             </li>
+             <li className='space-y-2'>
+-              <h2 className='text-lg md:text-xl'>Button</h2>
++              <h2 className='text-lg md:text-xl'>{t('page.button')}</h2>
+               <p className={clsx('mt-1! text-sm', textColor)}>
+-                Ordinary button with style.
++                {t('page.ordinary_button_with_style')}
+               </p>
+               <div className='flex flex-wrap gap-2'>
+-                <Button variant='primary'>Primary Variant</Button>
++                <Button variant='primary'>{t('page.primary_variant')}</Button>
+                 <Button variant='outline' isDarkBg={mode === 'dark'}>
+-                  Outline Variant
++                  {t('page.outline_variant')}
+                 </Button>
+                 <Button variant='ghost' isDarkBg={mode === 'dark'}>
+-                  Ghost Variant
++                  {t('page.ghost_variant')}
+                 </Button>
+-                <Button variant='dark'>Dark Variant</Button>
+-                <Button variant='light'>Light Variant</Button>
++                <Button variant='dark'>{t('page.dark_variant')}</Button>
++                <Button variant='light'>{t('page.light_variant')}</Button>
+               </div>
+               <div className='flex flex-wrap gap-2'>
+                 <Button
+@@ -252,7 +249,7 @@ export default function ComponentPage() {
+                   leftIcon={Plus}
+                   rightIcon={ArrowRight}
+                 >
+-                  Icon
++                  {t('page.icon')}
+                 </Button>
+                 <Button
+                   variant='outline'
+@@ -260,7 +257,7 @@ export default function ComponentPage() {
+                   rightIcon={ArrowRight}
+                   isDarkBg={mode === 'dark'}
+                 >
+-                  Icon
++                  {t('page.icon')}
+                 </Button>
+                 <Button
+                   variant='ghost'
+@@ -268,30 +265,30 @@ export default function ComponentPage() {
+                   rightIcon={ArrowRight}
+                   isDarkBg={mode === 'dark'}
+                 >
+-                  Icon
++                  {t('page.icon')}
+                 </Button>
+                 <Button variant='dark' leftIcon={Plus} rightIcon={ArrowRight}>
+-                  Icon
++                  {t('page.icon')}
+                 </Button>
+                 <Button variant='light' leftIcon={Plus} rightIcon={ArrowRight}>
+-                  Icon
++                  {t('page.icon')}
+                 </Button>
+               </div>
+               <div className='mt-4! flex flex-wrap gap-2'>
+                 <Button size='sm' variant='primary'>
+-                  Small Size
++                  {t('page.small_size')}
+                 </Button>
+                 <Button size='sm' variant='outline' isDarkBg={mode === 'dark'}>
+-                  Small Size
++                  {t('page.small_size')}
+                 </Button>
+                 <Button size='sm' variant='ghost' isDarkBg={mode === 'dark'}>
+-                  Small Size
++                  {t('page.small_size')}
+                 </Button>
+                 <Button size='sm' variant='dark'>
+-                  Small Size
++                  {t('page.small_size')}
+                 </Button>
+                 <Button size='sm' variant='light'>
+-                  Small Size
++                  {t('page.small_size')}
+                 </Button>
+               </div>
+               <div className='flex flex-wrap gap-2'>
+@@ -301,7 +298,7 @@ export default function ComponentPage() {
+                   leftIcon={Plus}
+                   rightIcon={ArrowRight}
+                 >
+-                  Icon
++                  {t('page.icon')}
+                 </Button>
+                 <Button
+                   size='sm'
+@@ -310,7 +307,7 @@ export default function ComponentPage() {
+                   rightIcon={ArrowRight}
+                   isDarkBg={mode === 'dark'}
+                 >
+-                  Icon
++                  {t('page.icon')}
+                 </Button>
+                 <Button
+                   size='sm'
+@@ -319,7 +316,7 @@ export default function ComponentPage() {
+                   rightIcon={ArrowRight}
+                   isDarkBg={mode === 'dark'}
+                 >
+-                  Icon
++                  {t('page.icon')}
+                 </Button>
+ 
+                 <Button
+@@ -328,7 +325,7 @@ export default function ComponentPage() {
+                   leftIcon={Plus}
+                   rightIcon={ArrowRight}
+                 >
+-                  Icon
++                  {t('page.icon')}
+                 </Button>
+                 <Button
+                   size='sm'
+@@ -336,59 +333,59 @@ export default function ComponentPage() {
+                   leftIcon={Plus}
+                   rightIcon={ArrowRight}
+                 >
+-                  Icon
++                  {t('page.icon')}
+                 </Button>
+               </div>
+ 
+               <div className='mt-4! flex flex-wrap gap-2'>
+                 <Button disabled variant='primary'>
+-                  Disabled
++                  {t('page.disabled')}
+                 </Button>
+                 <Button disabled variant='outline' isDarkBg={mode === 'dark'}>
+-                  Disabled
++                  {t('page.disabled')}
+                 </Button>
+                 <Button disabled variant='ghost' isDarkBg={mode === 'dark'}>
+-                  Disabled
++                  {t('page.disabled')}
+                 </Button>
+                 <Button disabled variant='dark'>
+-                  Disabled
++                  {t('page.disabled')}
+                 </Button>
+                 <Button disabled variant='light'>
+-                  Disabled
++                  {t('page.disabled')}
+                 </Button>
+               </div>
+               <div className='flex flex-wrap gap-2'>
+                 <Button isLoading variant='primary'>
+-                  Disabled
++                  {t('page.disabled')}
+                 </Button>
+                 <Button isLoading variant='outline' isDarkBg={mode === 'dark'}>
+-                  Disabled
++                  {t('page.disabled')}
+                 </Button>
+                 <Button isLoading variant='ghost' isDarkBg={mode === 'dark'}>
+-                  Disabled
++                  {t('page.disabled')}
+                 </Button>
+                 <Button isLoading variant='dark'>
+-                  Disabled
++                  {t('page.disabled')}
+                 </Button>
+                 <Button isLoading variant='light'>
+-                  Disabled
++                  {t('page.disabled')}
+                 </Button>
+               </div>
+             </li>
+             <li className='space-y-2'>
+-              <h2 className='text-lg md:text-xl'>TextButton</h2>
++              <h2 className='text-lg md:text-xl'>{t('page.textbutton')}</h2>
+               <p className={clsx('mt-1! text-sm', textColor)}>
+-                Button with a text style
++                {t('page.button_with_a_text_style')}
+               </p>
+               <div className='space-x-2'>
+-                <TextButton>Primary Variant</TextButton>
+-                <TextButton variant='basic'>Basic Variant</TextButton>
++                <TextButton>{t('page.primary_variant')}</TextButton>
++                <TextButton variant='basic'>{t('page.basic_variant')}</TextButton>
+               </div>
+             </li>
+             <li className='space-y-2'>
+-              <h2 className='text-lg md:text-xl'>IconButton</h2>
++              <h2 className='text-lg md:text-xl'>{t('page.iconbutton')}</h2>
+               <p className={clsx('mt-1! text-sm', textColor)}>
+-                Button with only icon inside
++                {t('page.button_with_only_icon_inside')}
+               </p>
+               <div className='space-x-2'>
+                 <IconButton icon={Plus} />
+@@ -399,18 +396,18 @@ export default function ComponentPage() {
+               </div>
+             </li>
+             <li className='space-y-2'>
+-              <h2 className='text-lg md:text-xl'>Custom 404 Page</h2>
++              <h2 className='text-lg md:text-xl'>{t('page.custom_404_page')}</h2>
+               <p className={clsx('mt-1! text-sm', textColor)}>
+-                Styled 404 page with some animation.
++                {t('page.styled_404_page_with_some_animation')}
+               </p>
+               <div className='flex flex-wrap gap-2'>
+-                <ButtonLink href='/404'>Visit the 404 page</ButtonLink>
++                <ButtonLink href='/404'>{t('page.visit_the_404_page')}</ButtonLink>
+               </div>
+             </li>
+             <li className='space-y-2'>
+-              <h2 className='text-lg md:text-xl'>Next Image</h2>
++              <h2 className='text-lg md:text-xl'>{t('page.next_image')}</h2>
+               <p className={clsx('mt-1! text-sm', textColor)}>
+-                Next Image with default props and skeleton animation
++                {t('page.next_image_with_default_props_and_skelet')}
+               </p>
+               <NextImage
+                 useSkeleton
+@@ -418,13 +415,13 @@ export default function ComponentPage() {
+                 src='/favicon/android-chrome-192x192.png'
+                 width='180'
+                 height='180'
+-                alt='Icon'
++                alt={t('page.icon')}
+               />
+             </li>
+             <li className='space-y-2'>
+-              <h2 className='text-lg md:text-xl'>Skeleton</h2>
++              <h2 className='text-lg md:text-xl'>{t('page.skeleton')}</h2>
+               <p className={clsx('mt-1! text-sm', textColor)}>
+-                Skeleton with shimmer effect
++                {t('page.skeleton_with_shimmer_effect')}
+               </p>
+               <Skeleton className='h-72 w-72' />
+             </li>
+diff --git a/src/app/error.tsx b/src/app/error.tsx
+index 132041d..2223daa 100644
+--- a/src/app/error.tsx
++++ b/src/app/error.tsx
+@@ -1,4 +1,5 @@
+ 'use client'; // Error components must be Client Components
++import { useTranslations } from 'next-intl';
+ 
+ import * as React from 'react';
+ import { RiAlarmWarningFill } from 'react-icons/ri';
+@@ -12,6 +13,7 @@ export default function Error({
+   error: Error & { digest?: string };
+   reset: () => void;
+ }) {
++  const t = useTranslations();
+   React.useEffect(() => {
+     // eslint-disable-next-line no-console
+     console.error(error);
+@@ -26,10 +28,10 @@ export default function Error({
+             className='drop-shadow-glow animate-flicker text-red-500'
+           />
+           <h1 className='mt-8 text-4xl md:text-6xl'>
+-            Oops, something went wrong!
++            {t('error.oops_something_went_wrong')}
+           </h1>
+           <TextButton variant='basic' onClick={reset} className='mt-4'>
+-            Try again
++            {t('error.try_again')}
+           </TextButton>
+         </div>
+       </section>
+diff --git a/src/app/layout.tsx b/src/app/layout.tsx
+index f1184cf..1174478 100644
+--- a/src/app/layout.tsx
++++ b/src/app/layout.tsx
+@@ -1,3 +1,5 @@
++import { NextIntlClientProvider } from 'next-intl';
++import { getMessages } from 'next-intl/server';
+ import { Metadata } from 'next';
+ import * as React from 'react';
+ 
+@@ -49,14 +51,17 @@ export const metadata: Metadata = {
+   // ],
+ };
+ 
+-export default function RootLayout({
++export default async function RootLayout({
+   children,
+ }: {
+   children: React.ReactNode;
+ }) {
++  const messages = await getMessages();
+   return (
+     <html>
+-      <body>{children}</body>
++      <body>
++        <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
++      </body>
+     </html>
+   );
+ }
+diff --git a/src/app/not-found.tsx b/src/app/not-found.tsx
+index 9598fe5..13c1383 100644
+--- a/src/app/not-found.tsx
++++ b/src/app/not-found.tsx
+@@ -1,3 +1,4 @@
++import { useTranslations } from 'next-intl';
+ import { Metadata } from 'next';
+ import * as React from 'react';
+ import { RiAlarmWarningFill } from 'react-icons/ri';
+@@ -7,6 +8,7 @@ export const metadata: Metadata = {
+ };
+ 
+ export default function NotFound() {
++  const t = useTranslations();
+   return (
+     <main>
+       <section className='bg-white'>
+@@ -15,8 +17,8 @@ export default function NotFound() {
+             size={60}
+             className='drop-shadow-glow animate-flicker text-red-500'
+           />
+-          <h1 className='mt-8 text-4xl md:text-6xl'>Page Not Found</h1>
+-          <a href='/'>Back to home</a>
++          <h1 className='mt-8 text-4xl md:text-6xl'>{t('not_found.page_not_found')}</h1>
++          <a href='/'>{t('not_found.back_to_home')}</a>
+         </div>
+       </section>
+     </main>
+diff --git a/src/app/page.tsx b/src/app/page.tsx
+index 99aab31..c48dcc7 100644
+--- a/src/app/page.tsx
++++ b/src/app/page.tsx
+@@ -1,4 +1,5 @@
+ 'use client';
++import { useTranslations } from 'next-intl';
+ 
+ import * as React from 'react';
+ import '@/lib/env';
+@@ -22,24 +23,25 @@ import Logo from '~/svg/Logo.svg';
+ // to customize the default configuration.
+ 
+ export default function HomePage() {
++  const t = useTranslations();
+   return (
+     <main>
+       <section className='bg-white'>
+         <div className='layout relative flex min-h-screen flex-col items-center justify-center py-12 text-center'>
+           <Logo className='w-16' />
+-          <h1 className='mt-4'>Next.js + Tailwind CSS + TypeScript Starter</h1>
++          <h1 className='mt-4'>{t('page.next_js_tailwind_css_typescript_starter')}</h1>
+           <p className='mt-2 text-sm text-gray-800'>
+             A starter for Next.js, Tailwind CSS, and TypeScript with Absolute
+             Import, Seo, Link component, pre-configured with Husky{' '}
+           </p>
+           <p className='mt-2 text-sm text-gray-700'>
+             <ArrowLink href='https://github.com/theodorusclarence/ts-nextjs-tailwind-starter'>
+-              See the repository
++              {t('page.see_the_repository')}
+             </ArrowLink>
+           </p>
+ 
+           <ButtonLink className='mt-6' href='/components' variant='light'>
+-            See all components
++            {t('page.see_all_components')}
+           </ButtonLink>
+ 
+           <UnstyledLink
+@@ -51,7 +53,7 @@ export default function HomePage() {
+               width='92'
+               height='32'
+               src='https://vercel.com/button'
+-              alt='Deploy with Vercel'
++              alt={t('page.deploy_with_vercel')}
+             />
+           </UnstyledLink>
+ 
+diff --git a/src/i18n/request.ts b/src/i18n/request.ts
+new file mode 100644
+index 0000000..eb85a4b
+--- /dev/null
++++ b/src/i18n/request.ts
+@@ -0,0 +1,11 @@
++import { getRequestConfig } from 'next-intl/server';
++
++// Single-locale setup (no locale routing): the agent localizes the code and seeds the
++// messages; negotiating / switching the active locale is left to the team.
++export default getRequestConfig(async () => {
++  const locale = 'en';
++  return {
++    locale,
++    messages: (await import(`../../messages/${locale}.json`)).default,
++  };
++});
