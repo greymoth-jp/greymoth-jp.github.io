@@ -3,85 +3,131 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>i18n-swarm — a CI gate that fails the PR on a new hardcoded UI string, verified by a real next build</title>
-<meta name="description" content="A localization drift gate for Next.js. A CI check that fails the pull request when a new hardcoded UI string lands, so the regression never ships. Its verdict is backed by a real next build over 8 open-source apps: 0 corruptions in 1,447 edits, all still building."/>
+<title>i18n-swarm — fail the CI check when a hardcoded UI string is added (Next.js / React / Vue)</title>
+<meta name="description" content="A CI gate that fails the pull request when a new hardcoded UI string is added to a Next.js, React or Vue app, so localization drift never reaches production. Diff-scoped, verified by a real next build. npx i18n-swarm check."/>
 <link rel="canonical" href="https://greymoth-jp.github.io/i18n-swarm/"/>
 <meta property="og:type" content="website"/>
 <meta property="og:url" content="https://greymoth-jp.github.io/i18n-swarm/"/>
-<meta property="og:title" content="i18n-swarm — fail the PR before the hardcoded string ships"/>
-<meta property="og:description" content="A CI gate that catches a new hardcoded UI string before merge, its verdict backed by a real next build (not a parse) over 8 real Next.js apps: 0 corruptions across 1,447 edits, all still green."/>
+<meta property="og:title" content="i18n-swarm — fail the PR when a hardcoded UI string is added"/>
+<meta property="og:description" content="A CI gate that catches a new hardcoded UI string before merge, so localization drift never ships. Diff-scoped, verified by a real next build over 8 real apps: 0 corruptions across 1,447 edits, 8/8 still green."/>
 <meta property="og:image" content="https://greymoth-jp.github.io/i18n-swarm/assets/card.png"/>
 <meta property="og:image:width" content="1200"/>
 <meta property="og:image:height" content="630"/>
 <meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:title" content="i18n-swarm — fail the PR before the hardcoded string ships"/>
-<meta name="twitter:description" content="A CI gate that catches a new hardcoded UI string before merge, backed by a real next build over 8 real Next.js apps: 0 corruptions across 1,447 edits, 8/8 still green."/>
+<meta name="twitter:title" content="i18n-swarm — fail the PR when a hardcoded UI string is added"/>
+<meta name="twitter:description" content="A CI gate that catches a new hardcoded UI string before merge, backed by a real next build over 8 real apps: 0 corruptions across 1,447 edits, 8/8 still green."/>
 <meta name="twitter:image" content="https://greymoth-jp.github.io/i18n-swarm/assets/card.png"/>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "i18n-swarm",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Node.js",
+  "softwareVersion": "0.1.0",
+  "license": "https://spdx.org/licenses/MIT.html",
+  "url": "https://greymoth-jp.github.io/i18n-swarm/",
+  "downloadUrl": "https://www.npmjs.com/package/i18n-swarm",
+  "author": { "@type": "Person", "name": "greymoth", "url": "https://github.com/greymoth-jp" },
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "description": "A CI gate that fails a pull request when a new hardcoded user-facing UI string is added to a Next.js, React or Vue app without a translation key, so localization drift never reaches production. Diff-scoped and verified by a real next build."
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do I stop hardcoded strings from reaching production?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Run a check on the pull request's diff (not the whole tree) and fail the job when a new user-facing string lands without a translation key. i18n-swarm's check command exits non-zero on a new hardcoded UI string and prints the keyed fix as a patch. Set it as a required status check and the regression cannot merge." }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I fail CI when a hardcoded string is added in a Next.js or React app?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Run npx i18n-swarm check <base>..<head> against the PR range. It diffs only what changed, classifies the added JSX/Vue text and attributes, and exits 1 if any new one is real copy instead of a key. Brand names, code identifiers and decorative alt text are demoted to non-blocking notes, so it fires on Sign In, not on variant=\"primary\"." }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I detect missing or untranslated i18n keys in CI?",
+      "acceptedAnswer": { "@type": "Answer", "text": "i18n-swarm catches the upstream cause: a new string that was never keyed in the first place, which is how locales fall behind. It is not a key-diff between en.json and ja.json; it stops the un-keyed string that would have created the gap. Translation quality stays human, because machine-translating Japanese is how you ship a homograph bug no compiler catches." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does it work with next-intl, react-i18next and vue-i18n?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. The same classifier drives the one-time retrofit (which scaffolds next-intl for the Next.js App Router, react-i18next for plain React or Vite, and vue-i18n for Vue 3) and the recurring gate. The gate itself only needs git and the diff, so it does not care which runtime you picked." }
+    },
+    {
+      "@type": "Question",
+      "name": "How is it different from i18next-cli?",
+      "acceptedAnswer": { "@type": "Answer", "text": "i18next-cli is the official, broader, better-maintained tool; on react-i18next and Locize, use it. i18n-swarm has two narrower edges: after it rewrites it runs your real next build and reverts any edit that won't re-parse (i18next-cli's own README calls it \"not an automated compiler\"), and its gate is diff-scoped, so it fails the PR on the one string you just added, not on every hardcoded string already in the tree." }
+    }
+  ]
+}
+</script>
 <style>
   :root{
-    --paper:#f4f4f2; --paper2:#e9e9e6; --ink:#0e0e0e; --soft:#55554f; --rule:#c9c9c2;
-    --mono:'IBM Plex Mono','DM Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-    --disp:'Archivo','Arial Narrow',ui-sans-serif,system-ui,sans-serif;
+    --bg:#ffffff; --text:#37352f; --soft:#787774; --head:#1d1d1b;
+    --rule:#ededec; --callout:#f7f6f3; --calloutbd:#eceae5;
+    --codebg:#11141a; --codetx:#e7e9ee; --add:#7ee787; --del:#ffa198; --dim:#8b94a3;
+    --link:#37352f;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","Inter",Roboto,Helvetica,Arial,sans-serif;
+    --mono:"SFMono-Regular",ui-monospace,"JetBrains Mono","DM Mono",Menlo,Consolas,monospace;
   }
   *{box-sizing:border-box}
-  html{scroll-behavior:smooth}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
   body{
-    margin:0; background:var(--paper); color:var(--ink);
-    font-family:var(--mono); font-size:15px; line-height:1.6;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    background-size:200px;
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:var(--sans); font-size:16px; line-height:1.7;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
   }
-  .wrap{max-width:840px;margin:0 auto;padding:22px 22px 90px}
-  .frame{border:2.5px solid var(--ink);box-shadow:0 0 0 2px var(--paper),0 0 0 4px var(--ink);background:var(--paper);padding:30px 28px}
-  a{color:var(--ink)}
-  .back{display:inline-block;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--soft);text-decoration:none;margin-bottom:16px}
-  .back:hover{color:var(--ink)}
-  .kicker{font-size:12px;letter-spacing:.34em;text-transform:uppercase;color:var(--soft)}
-  h1{font-family:var(--disp);font-weight:800;font-size:clamp(34px,6vw,58px);line-height:1.02;letter-spacing:-.02em;margin:10px 0 12px;text-transform:uppercase}
-  .lede{font-size:17px;max-width:60ch;margin:0 0 8px}
-  .lede b{background:var(--ink);color:var(--paper);padding:0 5px}
-  hr.rule{border:0;border-top:2px solid var(--ink);margin:26px 0}
-  .stats{display:flex;flex-wrap:wrap;gap:0;border:2px solid var(--ink);margin:24px 0}
-  .stat{flex:1 1 130px;padding:14px 16px;border-right:1px solid var(--ink)}
-  .stat:last-child{border-right:0}
-  .stat .n{font-family:var(--disp);font-weight:800;font-size:30px;line-height:1}
-  .stat .l{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--soft);margin-top:5px}
-  .clip{margin:24px 0;border:1px solid var(--ink);background:#fff}
-  .clip img{display:block;width:100%;height:auto}
-  .cap{font-size:12px;color:var(--soft);margin:6px 2px 0;letter-spacing:.04em}
-  .slab{background:var(--ink);color:#e9e9e6;padding:16px 18px;overflow:auto;font-size:12.5px;line-height:1.55;border:2px solid var(--ink);white-space:pre;tab-size:2;font-family:var(--mono)}
-  .slab .add{color:#c6f6c0}
-  .slab .del{color:#f3b3aa}
-  .slab .dim{color:#8a8a82}
-  .difftag{display:inline-block;background:var(--ink);color:var(--paper);font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:3px 9px;margin:18px 0 8px}
-  .difftag a{color:var(--paper);text-decoration:underline;text-underline-offset:2px}
-  h2{font-family:var(--disp);font-weight:800;text-transform:uppercase;font-size:22px;letter-spacing:-.01em;border-bottom:2px solid var(--ink);padding-bottom:6px;margin:36px 0 14px}
-  .lane{margin:16px 0}
-  .lane .tag{display:inline-block;background:var(--ink);color:var(--paper);font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:3px 9px;margin-bottom:8px}
-  ul.tick{list-style:none;margin:8px 0;padding:0}
-  ul.tick li{padding:5px 0 5px 22px;border-bottom:1px dotted var(--rule);position:relative}
-  ul.tick li::before{content:"+";position:absolute;left:0;font-weight:800}
-  ul.cut li::before{content:"\2014";left:0}
-  code{background:var(--paper2);border:1px solid var(--rule);padding:1px 5px}
-  .runs{font-size:13px;line-height:1.9}
-  .runs a{margin-right:4px}
-  .cta{border:2.5px solid var(--ink);padding:24px 22px;margin:34px 0 10px;background:var(--paper2)}
-  .cta h3{font-family:var(--disp);font-weight:800;text-transform:uppercase;font-size:20px;margin:0 0 6px}
-  .mailbtn{display:inline-block;margin-top:14px;padding:13px 24px;border:2.5px solid var(--ink);background:var(--ink);color:var(--paper);font-family:var(--disp);font-weight:800;text-transform:uppercase;letter-spacing:.07em;font-size:16px;text-decoration:none}
-  .mailbtn:hover{background:var(--paper);color:var(--ink)}
-  .alt{font-size:13px;color:var(--soft);margin-top:16px}
-  .alt code{background:var(--ink);color:var(--paper);border:0}
-  footer{margin-top:40px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:12px;color:var(--soft);border-top:2px solid var(--ink);padding-top:12px}
-  footer .gm{font-family:var(--disp);font-weight:800;color:var(--ink);font-size:15px;letter-spacing:.04em}
+  .wrap{max-width:720px;margin:0 auto;padding:72px 24px 96px}
+  a{color:var(--link);text-underline-offset:2px;text-decoration-color:#cfcdc7}
+  a:hover{text-decoration-color:var(--text)}
+  .eyebrow{font-size:13px;color:var(--soft);letter-spacing:.01em;margin:0 0 18px}
+  h1{font-size:34px;line-height:1.18;font-weight:700;letter-spacing:-.01em;color:var(--head);margin:0 0 16px}
+  .sub{font-size:18px;line-height:1.6;color:var(--text);margin:0 0 28px;max-width:60ch}
+  h2{font-size:21px;font-weight:600;color:var(--head);letter-spacing:-.005em;margin:44px 0 12px}
+  p{margin:0 0 14px;max-width:64ch}
+  .soft{color:var(--soft)}
+  .stats{display:flex;flex-wrap:wrap;gap:0;margin:6px 0 30px}
+  .stat{flex:1 1 120px;padding:2px 18px 2px 0;margin-right:18px;border-right:1px solid var(--rule)}
+  .stat:last-child{border-right:0;margin-right:0}
+  .stat .n{font-size:26px;font-weight:700;color:var(--head);line-height:1.1;letter-spacing:-.01em}
+  .stat .l{font-size:12.5px;color:var(--soft);margin-top:3px;line-height:1.35}
+  figure{margin:26px 0}
+  figure img{display:block;width:100%;height:auto;border-radius:10px;border:1px solid var(--rule)}
+  figcaption{font-size:13px;color:var(--soft);margin-top:8px}
+  pre{background:var(--codebg);color:var(--codetx);border-radius:10px;padding:18px 20px;overflow:auto;
+      font-family:var(--mono);font-size:13.5px;line-height:1.65;margin:14px 0;white-space:pre;tab-size:2}
+  pre .add{color:var(--add)} pre .del{color:var(--del)} pre .dim{color:var(--dim)}
+  code{font-family:var(--mono);font-size:.92em;background:#f1f0ed;border-radius:4px;padding:.1em .35em;color:#473f3a}
+  .callout{display:flex;gap:12px;background:var(--callout);border:1px solid var(--calloutbd);
+           border-radius:8px;padding:15px 16px;margin:18px 0}
+  .callout svg{flex:0 0 auto;margin-top:3px;color:var(--soft)}
+  .callout p{margin:0;max-width:none}
+  .callout p+p{margin-top:8px}
+  .qa{margin:8px 0 4px}
+  .q{font-size:16px;font-weight:600;color:var(--head);margin:20px 0 4px}
+  .a{color:var(--text);margin:0 0 4px;max-width:64ch}
+  .runs{font-size:14px;color:var(--soft);line-height:2}
+  .cta{margin:40px 0 8px}
+  .cta a.mail{display:inline-block;margin:8px 0 0;padding:10px 18px;border-radius:8px;background:var(--head);
+              color:#fff;text-decoration:none;font-size:15px;font-weight:500}
+  .cta a.mail:hover{background:#000}
+  hr{border:0;border-top:1px solid var(--rule);margin:40px 0}
+  footer{margin-top:46px;padding-top:18px;border-top:1px solid var(--rule);font-size:13px;color:var(--soft)}
+  footer a{color:var(--soft)}
+  @media (max-width:560px){ h1{font-size:28px} .sub{font-size:17px} .stat{flex-basis:46%} }
 </style>
 </head>
 <body>
-<div class="wrap"><div class="frame">
+<main class="wrap">
 
-  <a class="back" href="/">&larr; greymoth — proof</a>
-  <div class="kicker">i18n-swarm · localization drift gate</div>
-  <h1>Catch the hardcoded string<br/>before the PR merges</h1>
-  <p class="lede">A CI check that fails the pull request the moment a new hardcoded UI string lands, so the localization regression never reaches production, with the keyed fix in the same diff. The verdict you have to trust is backed by a real <code>next build</code> over 8 real apps, not a self-graded parse. <b>The one-time retrofit is the free on-ramp; the gate is what lasts.</b></p>
+  <p class="eyebrow">i18n-swarm · CI localization gate</p>
+  <h1>Catch the hardcoded string before the PR merges</h1>
+  <p class="sub">A CI check that fails the pull request the moment a new hardcoded UI string lands, so the localization regression never reaches production. Works with next-intl, react-i18next and vue-i18n.</p>
 
   <div class="stats">
     <div class="stat"><div class="n">8</div><div class="l">real OSS apps, untouched</div></div>
@@ -90,124 +136,80 @@
     <div class="stat"><div class="n">76.9%</div><div class="l">UI strings auto-keyed (avg)</div></div>
   </div>
 
-  <p class="lede" style="font-size:15px;color:var(--soft)">The gate's judgment is only as good as the engine behind it, so I proved that engine first. I ran the packed CLI against 8 unmodified open-source Next.js App Router apps with no existing i18n: Vercel Commerce, Vercel Platforms, Magic UI, two shadcn dashboards, a ts-nextjs starter, a portfolio template, and leerob.io. Each one is a clean clone &mdash; baseline <code>next build</code>, the full pass, then a fresh install and <code>next build</code> to verify. 0 corruptions across 1,447 edits, every one still green afterward, an average 76.9% of UI strings auto-keyed and the rest handed back as a punch-list. Not a mockup. The per-app diffs and the full results table are linked below.</p>
+  <p class="soft">The gate's verdict is only as good as the engine behind it, so I ran that engine against 8 unmodified open-source Next.js App Router apps with no i18n (Vercel Commerce, Vercel Platforms, Magic UI, two shadcn dashboards, a starter, a portfolio template, leerob.io). Each is a clean clone: baseline build, full pass, fresh install, build again to verify. Not a mockup. Full table and per-app diffs: <a href="./assets/results.md">results.md</a>.</p>
 
-  <div class="clip">
-    <img src="./assets/card.png" alt="i18n-swarm verdict card: 0 corruptions across 1,447 rewrite edits, 8 real OSS Next.js apps, 8 of 8 still next build green, 76.9 percent of UI strings auto-keyed"/>
-  </div>
-  <div class="cap">Aggregate over the 8 end-to-end apps. Full table, per-app counts and the honest out-of-scope notes: <a href="./assets/results.md">results.md</a></div>
+  <h2>The gate</h2>
+  <p>Localization rots the day after you finish it. Someone adds a button, ships the label hardcoded, and your other locales quietly fall behind. <code>check</code> runs on the diff, not the whole tree, so it fails only on the string the PR just added and prints the keyed fix as a ready-to-apply patch.</p>
+  <pre>npx i18n-swarm check                      <span class="dim"># working tree vs HEAD</span>
+npx i18n-swarm check &lt;base&gt;..&lt;head&gt;        <span class="dim"># a PR range</span>
+npx i18n-swarm check --files=a.tsx,b.vue   <span class="dim"># explicit files</span></pre>
+  <p class="soft">Brand names, code identifiers, decorative alt text and config-only strings are demoted to non-blocking notes, so the gate fires on real copy (<code>Sign In</code>, <code>Save</code>) and not on <code>variant="primary"</code>.</p>
 
-  <hr class="rule"/>
-
-  <h2>What the diff actually looks like</h2>
-  <p class="lede" style="font-size:15px;color:var(--soft)">Two real files from the run, verbatim. One per-string rewrite, one framework wire-up.</p>
-
-  <div class="difftag">vercel/platforms · ~6.7k&#9733; · <a href="./assets/diffs/platforms.diff">full diff</a></div>
-  <div class="slab"><span class="dim">app/admin/dashboard.tsx</span>
-  'use client';
-<span class="add">+ import { useTranslations } from 'next-intl';</span>
-
-  function DashboardHeader() {
-<span class="add">+   const t = useTranslations();</span>
-      return (
-<span class="del">-       &lt;h1 className="text-3xl font-bold"&gt;Subdomain Management&lt;/h1&gt;</span>
-<span class="add">+       &lt;h1 className="text-3xl font-bold"&gt;{t('dashboard.subdomain_management')}&lt;/h1&gt;</span>
-
-<span class="dim">app/layout.tsx  (framework wiring, done for you)</span>
-<span class="add">+ import { NextIntlClientProvider } from 'next-intl';</span>
-<span class="add">+ import { getMessages } from 'next-intl/server';</span>
-<span class="del">- export default function RootLayout({ children }) {</span>
-<span class="add">+ export default async function RootLayout({ children }) {</span>
-<span class="add">+   const messages = await getMessages();</span>
-      return (
-        &lt;body&gt;
-<span class="add">+         &lt;NextIntlClientProvider messages={messages}&gt;</span>
-            {children}
-<span class="add">+         &lt;/NextIntlClientProvider&gt;</span></div>
-
-  <div class="difftag">vercel/commerce · ~14.1k&#9733; · <a href="./assets/diffs/commerce.diff">full diff</a></div>
-  <div class="slab"><span class="dim">app/error.tsx</span>
+  <h2>What the keyed fix looks like</h2>
+  <pre><span class="dim">app/error.tsx · vercel/commerce</span>
   "use client";
 <span class="add">+ import { useTranslations } from 'next-intl';</span>
 
   export default function Error({ reset }) {
 <span class="add">+   const t = useTranslations();</span>
       return (
-<span class="del">-     &lt;h2 className="text-xl font-bold"&gt;Oh no!&lt;/h2&gt;</span>
-<span class="add">+     &lt;h2 className="text-xl font-bold"&gt;{t('error.oh_no')}&lt;/h2&gt;</span>
-        &lt;button onClick={() =&gt; reset()}&gt;
-<span class="del">-       Try Again</span>
-<span class="add">+       {t('error.try_again')}</span>
-        &lt;/button&gt;</div>
-  <div class="cap">Every edit is re-parsed after it is written. A bad edit reverts instead of mangling the file &mdash; that is why the corruption count is 0 across all 1,447 edits. Prose, interpolated counts, and sentences with inline links are not guessed at; they go to the review queue.</div>
+<span class="del">-     &lt;h2&gt;Oh no!&lt;/h2&gt;</span>
+<span class="add">+     &lt;h2&gt;{t('error.oh_no')}&lt;/h2&gt;</span></pre>
+  <p class="soft">Every edit is re-parsed after it is written. A bad edit reverts instead of mangling the file, which is why the corruption count is 0 across all 1,447 edits.</p>
 
-  <hr class="rule"/>
+  <div class="callout">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 7.2v3.6M8 5.2v.01" stroke-linecap="round"/></svg>
+    <div>
+      <p>It does not translate. Every <code>ja</code> key is seeded with the English fallback, because machine-translating Japanese is how you ship a homograph bug no compiler catches, so that stays human.</p>
+      <p>Prose, interpolated counts and sentences with inline links are not guessed at. They go to a review queue, not a fail.</p>
+    </div>
+  </div>
 
   <h2>vs i18next-cli</h2>
-  <p class="lede" style="font-size:15px;color:var(--soft)">Fair question, so the honest answer: i18next-cli wraps hardcoded strings too, and it is the official, free, broader, better-maintained tool. If you are on react-i18next and Locize, use it. i18n-swarm's edge is two narrower things. After it rewrites, it runs your real <code>next build</code> and reverts any edit that won't re-parse, where i18next-cli writes the transform and, in its own README, calls itself "not an automated compiler". And its gate is diff-scoped, so it fails a PR on the one string you just added instead of on every hardcoded string already sitting in the tree. No CJK magic on either side &mdash; both just count multibyte offsets correctly.</p>
+  <p class="soft">The honest answer: i18next-cli is the official, broader, better-maintained tool, and if you are on react-i18next and Locize you should use it. i18n-swarm's edge is two narrower things. After it rewrites, it runs your real <code>next build</code> and reverts any edit that won't re-parse, where i18next-cli calls itself "not an automated compiler". And its gate is diff-scoped, so it fails a PR on the one string you just added instead of on every hardcoded string already in the tree.</p>
 
-  <hr class="rule"/>
+  <h2>Common questions</h2>
+  <div class="qa">
+    <p class="q">How do I stop hardcoded strings from reaching production?</p>
+    <p class="a">Run a check on the pull request's diff and fail the job when a new user-facing string lands without a key. <code>i18n-swarm check</code> exits non-zero on a new hardcoded UI string and prints the keyed fix. Make it a required status check and the regression can't merge.</p>
 
-  <h2>Honest about the line</h2>
-  <div class="lane">
-    <span class="tag">it does</span>
-    <ul class="tick">
-      <li>key the clean labels and rewrite them to <code>t('key')</code></li>
-      <li>scaffold next-intl: nested messages, request config, plugin wrap, provider</li>
-      <li>install and run <code>next build</code>, and revert any edit that doesn't re-parse</li>
-      <li>detect an existing i18n setup and refuse, instead of double-wiring it</li>
-    </ul>
-  </div>
-  <div class="lane">
-    <span class="tag">it does not</span>
-    <ul class="tick cut">
-      <li>translate. Every ja key is seeded with the English fallback. Machine-translating Japanese is how you ship a homograph bug no compiler catches, so that stays human</li>
-      <li>split prose, interpolated counts, or sentences with inline links. Those become a punch-list, not a guess</li>
-      <li>claim test-verified. These templates have no unit tests, so the verdict is build-and-render verified, not test-verified</li>
-      <li>reach apps that need secrets or a workspace install. Two more apps (ai-chatbot, novel) rewrote with 0 corruptions but couldn't hit a headless build &mdash; that's in results.md too</li>
-    </ul>
+    <p class="q">How do I fail CI when a hardcoded string is added in a Next.js or React app?</p>
+    <p class="a"><code>npx i18n-swarm check &lt;base&gt;..&lt;head&gt;</code> against the PR range. It diffs only what changed and exits 1 if a new string is real copy instead of a key. Brand names and code identifiers are demoted to non-blocking notes.</p>
+
+    <p class="q">How do I detect missing or untranslated i18n keys in CI?</p>
+    <p class="a">It catches the upstream cause: a new string that was never keyed, which is how locales fall behind. It isn't a key-diff between <code>en.json</code> and <code>ja.json</code>; it stops the un-keyed string that would have created the gap. Translation quality stays human.</p>
+
+    <p class="q">Does it work with next-intl, react-i18next and vue-i18n?</p>
+    <p class="a">Yes. The same classifier drives the retrofit (next-intl for the Next.js App Router, react-i18next for plain React or Vite, vue-i18n for Vue 3) and the gate. The gate only needs git and the diff.</p>
+
+    <p class="q">How is it different from i18next-cli?</p>
+    <p class="a">i18next-cli is official and broader. i18n-swarm runs your real build and reverts edits that won't re-parse, and its gate is diff-scoped, so it fails the PR on the one string you just added rather than the whole tree.</p>
   </div>
 
-  <hr class="rule"/>
+  <hr/>
 
-  <h2>The gate, concretely</h2>
-  <p class="lede">Localization rots the day after you finish it. Someone adds a button, ships the label hardcoded, and your other locales quietly fall behind. The retrofit fixes today. The gate keeps tomorrow from un-fixing it.</p>
-  <p class="lede" style="font-size:15px;color:var(--soft)"><code>check</code> runs on a diff, not the whole tree, so it fails only on the string the PR just added, with the keyed fix printed as a ready-to-apply patch. A five-bucket suppression pass demotes brand names, code identifiers, decorative alt text and config-only strings to soft notes, so the gate fires on real copy (<code>Sign In</code>, <code>Save</code>) and not on <code>variant="primary"</code>. Same classifier as the migration, so the gate and the one-time pass agree on what counts.</p>
-  <div class="slab">npx i18n-swarm check                      working tree vs HEAD
-npx i18n-swarm check &lt;base&gt;..&lt;head&gt;        a specific range
-npx i18n-swarm check --files=a.tsx,b.vue   explicit files</div>
-  <ul class="tick">
-    <li>0 localization drifts to production, enforced where the regression actually enters: the pull request</li>
-  </ul>
-
-  <hr class="rule"/>
-
-  <h2>The full run</h2>
-  <p class="lede" style="font-size:15px;color:var(--soft)">Raw per-app diffs from the corpus, plus the results table. Read them, not me.</p>
-  <div class="runs">
-    <a href="./assets/results.md">results.md</a> &middot;
-    <a href="./assets/diffs/ts-starter.diff">ts-starter</a> &middot;
-    <a href="./assets/diffs/dillion-portfolio.diff">dillion-portfolio</a> &middot;
-    <a href="./assets/diffs/adm-dashboard.diff">adm-dashboard</a> &middot;
-    <a href="./assets/diffs/kiran-dashboard.diff">kiran-dashboard</a> &middot;
-    <a href="./assets/diffs/leerob.diff">leerob</a> &middot;
-    <a href="./assets/diffs/platforms.diff">platforms</a> &middot;
-    <a href="./assets/diffs/magicui.diff">magicui</a> &middot;
-    <a href="./assets/diffs/commerce.diff">commerce</a>
-  </div>
+  <p class="runs">Raw per-app diffs:
+    <a href="./assets/results.md">results.md</a> ·
+    <a href="./assets/diffs/commerce.diff">commerce</a> ·
+    <a href="./assets/diffs/platforms.diff">platforms</a> ·
+    <a href="./assets/diffs/magicui.diff">magicui</a> ·
+    <a href="./assets/diffs/leerob.diff">leerob</a> ·
+    <a href="./assets/diffs/adm-dashboard.diff">adm-dashboard</a> ·
+    <a href="./assets/diffs/kiran-dashboard.diff">kiran-dashboard</a> ·
+    <a href="./assets/diffs/ts-starter.diff">ts-starter</a> ·
+    <a href="./assets/diffs/dillion-portfolio.diff">dillion-portfolio</a>
+  </p>
 
   <div class="cta">
-    <h3>Which one would you use?</h3>
-    <p style="margin:0;color:var(--soft);font-size:14px">I'm trying to learn whether the one-shot <b style="background:var(--ink);color:var(--paper);padding:0 4px">retrofit</b> is the thing, or the recurring <b style="background:var(--ink);color:var(--paper);padding:0 4px">drift gate</b> is. Email me and tell me which &mdash; one word is plenty. I read every reply.</p>
-    <a class="mailbtn" href="mailto:greymoth@glovrex.com?subject=i18n-swarm&amp;body=I%27d%20use%20the%20(retrofit%20%2F%20drift-gate)%20because%3A%0A%0AMy%20stack%3A%20">Email me: retrofit or the gate</a>
-    <p class="alt">The CLI is <code>npx i18n-swarm ./your-app</code> &mdash; <span style="color:var(--soft)">published on npm (v0.1.0, MIT). Run it on a branch and read the diff before you trust it.</span></p>
+    <p>Which would you use, the one-time <b>retrofit</b> or the recurring <b>drift gate</b>? Email me which one, one word is plenty. I read every reply.</p>
+    <a class="mail" href="mailto:greymoth@glovrex.com?subject=i18n-swarm&amp;body=I%27d%20use%20the%20(retrofit%20%2F%20drift-gate)%20because%3A%0A%0AMy%20stack%3A%20">Email: retrofit or the gate</a>
+    <p class="soft" style="margin-top:14px">The CLI is <code>npx i18n-swarm ./your-app</code>. Published on npm (v0.1.0, MIT). Run it on a branch and read the diff before you trust it.</p>
   </div>
 
   <footer>
-    <span class="gm">greymoth</span>
-    <span>next · build GREEN · the rest is a punch-list</span>
+    <a href="/">greymoth</a> · MIT · <a href="https://www.npmjs.com/package/i18n-swarm">npm</a>
   </footer>
 
-</div></div>
+</main>
 </body>
 </html>

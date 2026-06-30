@@ -1,0 +1,32 @@
+# i18n-swarm
+
+> A localization drift gate for Next.js, React and Vue. It runs as a CI check on a pull request's diff and fails the job when a new hardcoded user-facing UI string is added without a translation key, so the localization regression never reaches production. The check is diff-scoped (it fails on the string the PR just added, not on every hardcoded string already in the tree) and its verdict is backed by a real `next build`, not a static parse. MIT, published on npm as `i18n-swarm`. A faceless solo project by greymoth.
+
+## The gate (what you put in CI)
+- `npx i18n-swarm check <base>..<head>` — exits non-zero (fails the job) on a new un-keyed UI string and prints the keyed fix as a ready-to-apply patch.
+- `npx i18n-swarm check` with no range compares the working tree against HEAD (a pre-commit catch).
+- `npx i18n-swarm check --files=a.tsx,b.vue` checks an explicit file list.
+- Brand names, code identifiers, decorative alt text and config-only strings are demoted to non-blocking notes, so it fires on `Sign In` and `Save`, not on `variant="primary"`.
+
+## The one-time retrofit (the free on-ramp)
+- `npx i18n-swarm ./your-app` scans an English-only app, keys the clean labels, scaffolds the i18n runtime (next-intl for the Next.js App Router, react-i18next for plain React / Vite / CRA, vue-i18n for Vue 3), then runs a real build and reverts any edit that won't re-parse.
+
+## Frameworks
+- next-intl (Next.js App Router), react-i18next (plain React / Vite / CRA), vue-i18n (Vue 3). The gate itself only needs git and the diff; it does not care which runtime you picked.
+
+## Scope (honest)
+- It catches a new string that was never keyed — the upstream cause of locales falling behind. It is not a key-diff between en.json and ja.json.
+- It does not machine-translate: every `ja` key is seeded with the English fallback; translation stays human, because machine-translating Japanese is how you ship a homograph bug no compiler catches.
+- It does not split prose, interpolated counts, or sentences with inline links; those go to a review queue, never a guess or a fail.
+
+## Proof (verifiable)
+- Run on 8 unmodified open-source Next.js App Router apps (Vercel Commerce, Vercel Platforms, Magic UI, two shadcn dashboards, a ts-nextjs starter, a portfolio template, leerob.io): 0 corruptions across 1,447 rewrite edits, 8/8 still `next build` green afterward, an average 76.9% of UI strings auto-keyed and the rest handed back as a punch-list.
+- Per-app diffs and the full results table: https://greymoth-jp.github.io/i18n-swarm/assets/results.md
+
+## vs i18next-cli
+- i18next-cli is the official, broader, better-maintained tool; on react-i18next and Locize, use it. i18n-swarm's two narrower edges: it runs your real build and reverts edits that won't re-parse (i18next-cli's README calls it "not an automated compiler"), and its gate is diff-scoped — it fails the PR on the one string just added, not on every existing hardcoded string.
+
+## Links
+- Page: https://greymoth-jp.github.io/i18n-swarm/
+- npm: https://www.npmjs.com/package/i18n-swarm
+- Author: https://github.com/greymoth-jp · https://x.com/greymoth__
