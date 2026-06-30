@@ -3,19 +3,19 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>i18n-swarm — a code-side i18n retrofit that ends with a real next build</title>
-<meta name="description" content="A code-side localization agent for Next.js. It keys your hardcoded strings, wires next-intl, and ends its run with a green next build. Run over 8 real open-source apps: 0 corruptions in 1,447 edits, all still building."/>
+<title>i18n-swarm — a CI gate that fails the PR on a new hardcoded UI string, verified by a real next build</title>
+<meta name="description" content="A localization drift gate for Next.js. A CI check that fails the pull request when a new hardcoded UI string lands, so the regression never ships. Its verdict is backed by a real next build over 8 open-source apps: 0 corruptions in 1,447 edits, all still building."/>
 <link rel="canonical" href="https://greymoth-jp.github.io/i18n-swarm/"/>
 <meta property="og:type" content="website"/>
 <meta property="og:url" content="https://greymoth-jp.github.io/i18n-swarm/"/>
-<meta property="og:title" content="i18n-swarm — code-side i18n that ends with a real next build"/>
-<meta property="og:description" content="8 real Next.js apps localized from the code side. 0 corruptions across 1,447 edits, all still next build green. The retrofit is the hook; the drift gate is the question."/>
+<meta property="og:title" content="i18n-swarm — fail the PR before the hardcoded string ships"/>
+<meta property="og:description" content="A CI gate that catches a new hardcoded UI string before merge, its verdict backed by a real next build (not a parse) over 8 real Next.js apps: 0 corruptions across 1,447 edits, all still green."/>
 <meta property="og:image" content="https://greymoth-jp.github.io/i18n-swarm/assets/card.png"/>
 <meta property="og:image:width" content="1200"/>
 <meta property="og:image:height" content="630"/>
 <meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:title" content="i18n-swarm — code-side i18n that ends with a real next build"/>
-<meta name="twitter:description" content="8 real Next.js apps localized from the code side. 0 corruptions across 1,447 edits, all still next build green."/>
+<meta name="twitter:title" content="i18n-swarm — fail the PR before the hardcoded string ships"/>
+<meta name="twitter:description" content="A CI gate that catches a new hardcoded UI string before merge, backed by a real next build over 8 real Next.js apps: 0 corruptions across 1,447 edits, 8/8 still green."/>
 <meta name="twitter:image" content="https://greymoth-jp.github.io/i18n-swarm/assets/card.png"/>
 <style>
   :root{
@@ -79,9 +79,9 @@
 <div class="wrap"><div class="frame">
 
   <a class="back" href="/">&larr; greymoth — proof</a>
-  <div class="kicker">i18n-swarm · code-side localization</div>
-  <h1>A merge-ready i18n PR<br/>for your Next.js app</h1>
-  <p class="lede">Point it at a repo. It keys the hardcoded strings, writes the locale files, wires next-intl, and ends its run with a real <code>next build</code>. <b>The retrofit is the free part.</b></p>
+  <div class="kicker">i18n-swarm · localization drift gate</div>
+  <h1>Catch the hardcoded string<br/>before the PR merges</h1>
+  <p class="lede">A CI check that fails the pull request the moment a new hardcoded UI string lands, so the localization regression never reaches production, with the keyed fix in the same diff. The verdict you have to trust is backed by a real <code>next build</code> over 8 real apps, not a self-graded parse. <b>The one-time retrofit is the free on-ramp; the gate is what lasts.</b></p>
 
   <div class="stats">
     <div class="stat"><div class="n">8</div><div class="l">real OSS apps, untouched</div></div>
@@ -90,7 +90,7 @@
     <div class="stat"><div class="n">76.9%</div><div class="l">UI strings auto-keyed (avg)</div></div>
   </div>
 
-  <p class="lede" style="font-size:15px;color:var(--soft)">I ran the packed CLI against 8 unmodified open-source Next.js App Router apps with no existing i18n: Vercel Commerce, Vercel Platforms, Magic UI, two shadcn dashboards, a ts-nextjs starter, a portfolio template, and leerob.io. Each one is a clean clone &mdash; baseline <code>next build</code>, the full pass, then a fresh install and <code>next build</code> to verify. 0 corruptions across 1,447 edits, every one still green afterward, an average 76.9% of UI strings auto-keyed and the rest handed back as a punch-list. Not a mockup. The per-app diffs and the full results table are linked below.</p>
+  <p class="lede" style="font-size:15px;color:var(--soft)">The gate's judgment is only as good as the engine behind it, so I proved that engine first. I ran the packed CLI against 8 unmodified open-source Next.js App Router apps with no existing i18n: Vercel Commerce, Vercel Platforms, Magic UI, two shadcn dashboards, a ts-nextjs starter, a portfolio template, and leerob.io. Each one is a clean clone &mdash; baseline <code>next build</code>, the full pass, then a fresh install and <code>next build</code> to verify. 0 corruptions across 1,447 edits, every one still green afterward, an average 76.9% of UI strings auto-keyed and the rest handed back as a punch-list. Not a mockup. The per-app diffs and the full results table are linked below.</p>
 
   <div class="clip">
     <img src="./assets/card.png" alt="i18n-swarm verdict card: 0 corruptions across 1,447 rewrite edits, 8 real OSS Next.js apps, 8 of 8 still next build green, 76.9 percent of UI strings auto-keyed"/>
@@ -143,6 +143,11 @@
 
   <hr class="rule"/>
 
+  <h2>vs i18next-cli</h2>
+  <p class="lede" style="font-size:15px;color:var(--soft)">Fair question, so the honest answer: i18next-cli wraps hardcoded strings too, and it is the official, free, broader, better-maintained tool. If you are on react-i18next and Locize, use it. i18n-swarm's edge is two narrower things. After it rewrites, it runs your real <code>next build</code> and reverts any edit that won't re-parse, where i18next-cli writes the transform and, in its own README, calls itself "not an automated compiler". And its gate is diff-scoped, so it fails a PR on the one string you just added instead of on every hardcoded string already sitting in the tree. No CJK magic on either side &mdash; both just count multibyte offsets correctly.</p>
+
+  <hr class="rule"/>
+
   <h2>Honest about the line</h2>
   <div class="lane">
     <span class="tag">it does</span>
@@ -165,10 +170,13 @@
 
   <hr class="rule"/>
 
-  <h2>The part that doesn't end</h2>
-  <p class="lede">Localization rots the day after you finish it. Someone adds a button, ships the label hardcoded, and your other locales quietly fall behind. The retrofit fixes today. A drift gate would keep tomorrow from un-fixing it.</p>
+  <h2>The gate, concretely</h2>
+  <p class="lede">Localization rots the day after you finish it. Someone adds a button, ships the label hardcoded, and your other locales quietly fall behind. The retrofit fixes today. The gate keeps tomorrow from un-fixing it.</p>
+  <p class="lede" style="font-size:15px;color:var(--soft)"><code>check</code> runs on a diff, not the whole tree, so it fails only on the string the PR just added, with the keyed fix printed as a ready-to-apply patch. A five-bucket suppression pass demotes brand names, code identifiers, decorative alt text and config-only strings to soft notes, so the gate fires on real copy (<code>Sign In</code>, <code>Save</code>) and not on <code>variant="primary"</code>. Same classifier as the migration, so the gate and the one-time pass agree on what counts.</p>
+  <div class="slab">npx i18n-swarm check                      working tree vs HEAD
+npx i18n-swarm check &lt;base&gt;..&lt;head&gt;        a specific range
+npx i18n-swarm check --files=a.tsx,b.vue   explicit files</div>
   <ul class="tick">
-    <li><b style="background:var(--ink);color:var(--paper);padding:0 4px">Drift gate</b> &mdash; a CI check that fails a PR when a new hardcoded UI string lands, and offers the keyed fix in the same diff</li>
     <li>0 localization drifts to production, enforced where the regression actually enters: the pull request</li>
   </ul>
 
