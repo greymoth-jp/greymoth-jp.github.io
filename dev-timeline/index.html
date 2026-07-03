@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dev Timeline — your year in code, as a print</title>
+<meta name="description" content="Developer year-in-review. Enter a GitHub username, get a shareable riso-print poster of your year in code. Zero backend, your token never leaves the browser.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://greymoth-jp.github.io/dev-timeline/">
+<meta property="og:title" content="Dev Timeline — your year in code">
+<meta property="og:description" content="Spotify Wrapped for developers, printed like a zine. Shareable, honest, zero-backend.">
+<meta property="og:image" content="https://greymoth-jp.github.io/dev-timeline/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Dev Timeline — your year in code">
+<meta name="twitter:description" content="Spotify Wrapped for developers, printed like a zine. Shareable, honest, zero-backend.">
+<meta name="twitter:image" content="https://greymoth-jp.github.io/dev-timeline/og.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Fraunces:ital,opsz,wght@1,9..144,400;1,9..144,600&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="wrap">
+
+  <header class="mast">
+    <div class="bar"><span>DEV · TIMELINE</span><span>PROOF OF WORK · <span id="thisYear">2026</span></span></div>
+    <h1>DEV&nbsp;<em>TIMELINE</em></h1>
+    <div class="sub">
+      <span class="lede">Your year in code — printed like a zine, not a dashboard.</span>
+      <span>EST. 2026 · NO BACKEND · YOUR TOKEN STAYS IN YOUR BROWSER</span>
+    </div>
+  </header>
+
+  <div class="console">
+    <div class="field">
+      <label for="user">GitHub username</label>
+      <div class="at"><span>@</span><input id="user" type="text" placeholder="octocat" autocomplete="off" spellcheck="false"></div>
+    </div>
+    <div class="actions">
+      <button class="go" id="gen">Generate →</button>
+      <button class="ghost" id="demo">Try a demo</button>
+    </div>
+  </div>
+
+  <span class="toggle" id="advToggle">▸ advanced — add a token for the full-year graph &amp; streak</span>
+  <div class="adv" id="adv">
+    <p><strong>Optional GitHub token.</strong> Without one, GitHub only exposes public repos, languages and recent activity (no full-year calendar — 60 requests/hour). A <em>read-only</em> classic token (no scopes needed) unlocks the accurate year via GraphQL. It is used only for this request, from your browser, and is never sent to any server. You can save it in this browser only.</p>
+    <div class="at"><span style="font-size:14px;font-family:'JetBrains Mono'">tok</span><input id="token" type="password" placeholder="ghp_… (optional, stays local)"></div>
+  </div>
+
+  <div class="err hidden" id="error"></div>
+
+  <div class="stage">
+    <div class="poster-frame empty" id="posterFrame">
+      <div class="big">YOUR<br><em>YEAR</em><br>PRINTS<br>HERE</div>
+    </div>
+
+    <div class="side hidden" id="side">
+      <h2 id="archLabel">—</h2>
+      <div class="badges" id="badges"></div>
+      <ul class="stat-list" id="statList"></ul>
+      <div class="actions">
+        <button class="go" id="dl">Download PNG</button>
+        <button class="ghost" id="copy">Copy share link</button>
+        <button class="ghost" id="shareX">Share on X</button>
+        <button class="ghost" id="shareReddit">Share on Reddit</button>
+        <button class="go" id="storyBtn">▶ View as story</button>
+      </div>
+      <p class="note" id="note"></p>
+    </div>
+  </div>
+
+  <div class="story hidden" id="story">
+    <div class="story-inner">
+      <div class="slide-wrap"><div id="slide"></div></div>
+      <div class="story-nav">
+        <button class="ghost" id="prev">◀ prev</button>
+        <span class="counter" id="counter">1 / 6</span>
+        <button class="ghost" id="next">next ▶</button>
+        <button class="go" id="dlSlide">Download this card</button>
+        <button class="ghost" id="closeStory">✕ close</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span>DEV TIMELINE · a zero-backend year-in-code poster</span>
+    <span>share the print, not the dashboard</span>
+  </footer>
+</div>
+
+<script src="engine.js"></script>
+<script src="card.js"></script>
+<script src="fixtures.js"></script>
+<script src="github.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
