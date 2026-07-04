@@ -1,0 +1,286 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>i18n / cjk readiness — sample</title>
+<style>
+:root{
+  --ink:#141414; --paper:#f7f6f2; --track:#e4e1da;
+  --sans:"Helvetica Neue",Helvetica,Arial,"Segoe UI",system-ui,sans-serif;
+  --mono:ui-monospace,"SFMono-Regular","Menlo","Consolas","Liberation Mono",monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);
+  -webkit-font-smoothing:antialiased;line-height:1.5;
+  background-image:radial-gradient(rgba(20,20,20,.05) .6px,transparent .6px);background-size:4px 4px}
+.wrap{max-width:940px;margin:0 auto;padding:40px 40px 64px}
+.mono{font-family:var(--mono)}
+.kicker{font-size:11px;letter-spacing:2.4px;text-transform:uppercase;color:#7a776f}
+hr.rule{border:0;border-top:1px solid var(--ink);margin:0}
+hr.hair{border:0;border-top:1px solid var(--track);margin:0}
+
+.top{display:flex;justify-content:space-between;align-items:baseline;padding-bottom:14px}
+.brand{font-weight:700;letter-spacing:.4px}
+.brand small{font-weight:400;color:#7a776f;letter-spacing:2px;text-transform:uppercase;font-size:10px;margin-left:10px}
+
+.hero{display:flex;gap:36px;align-items:center;padding:34px 0 30px}
+.hero .score{flex:0 0 auto;text-align:center}
+.hero .meta{flex:1 1 auto}
+.hero h1{font-size:30px;line-height:1.12;margin:0 0 6px;font-weight:700;letter-spacing:-.2px}
+.hero .target{font-family:var(--mono);font-size:13px;color:#4a4843;word-break:break-all}
+.verdict{display:inline-flex;align-items:center;gap:10px;margin-top:14px;font-size:13px}
+.verdict b{text-transform:uppercase;letter-spacing:1.6px;font-size:12px}
+.facts{display:flex;gap:26px;margin-top:18px;flex-wrap:wrap}
+.fact{}
+.fact .n{font-family:var(--mono);font-size:22px;font-weight:600;display:block}
+.fact .l{font-size:11px;color:#7a776f;letter-spacing:.4px}
+
+.chip{display:inline-block;min-width:20px;text-align:center;color:#fff;font-family:var(--mono);
+  font-weight:600;font-size:12px;padding:1px 6px;border-radius:2px;vertical-align:middle}
+
+.gauges{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;margin:26px 0 8px}
+.gauges.six{grid-template-columns:repeat(6,1fr)}
+.gauge{text-align:center;padding:14px 6px 12px;border:1px solid var(--track);background:#fff}
+.gauge .g-score{font-family:var(--mono);font-size:26px;font-weight:600;line-height:1}
+.gauge .g-score.na{color:#b7b4ac;font-size:20px}
+.gauge .g-label{font-size:10px;line-height:1.25;color:#4a4843;margin-top:8px;letter-spacing:.2px}
+
+.cat{padding:22px 0}
+.cat-h{display:flex;align-items:center;gap:12px}
+.cat-h .name{font-weight:700;font-size:16px}
+.cat-h .sc{margin-left:auto;font-family:var(--mono);font-weight:600;font-size:18px}
+.cat .blurb{color:#55524b;font-size:13px;margin:6px 0 12px;max-width:70ch}
+.bar{height:6px;background:var(--track);border-radius:3px;overflow:hidden;margin:10px 0 14px}
+.bar .fill{height:100%;background:var(--ink)}
+.wt{font-size:10px;color:#98958d;letter-spacing:.6px;text-transform:uppercase}
+.std{font-size:11px;color:#7a776f;font-family:var(--mono)}
+
+.finds{margin-top:6px;border-top:1px solid var(--track)}
+.find{padding:11px 0;border-bottom:1px solid var(--track);font-size:13px}
+.find .loc{font-family:var(--mono);font-size:12px;color:#111}
+.find .r{font-family:var(--mono);font-size:11px;color:#fff;background:#2b2b2b;padding:1px 6px;border-radius:2px;margin-left:8px}
+.find .msg{margin:5px 0 3px;color:#2e2c28}
+.find .fix{color:#57544d;font-size:12px}
+.find .fix b{color:#2b2b2b;font-weight:600}
+.more{font-size:12px;color:#7a776f;padding:9px 0}
+.clean{color:#57544d;font-size:13px;padding:6px 0}
+
+.note{background:#fff;border:1px solid var(--track);padding:16px 18px;margin-top:26px;font-size:12.5px;color:#55524b}
+.note b{color:var(--ink)}
+.foot{display:flex;justify-content:space-between;gap:20px;margin-top:26px;padding-top:16px;border-top:1px solid var(--ink);font-size:11px;color:#7a776f;flex-wrap:wrap}
+.foot .mono{color:#55524b}
+</style></head>
+<body><div class="wrap">
+  <div class="top">
+    <div class="brand">greymoth <small>i18n · cjk</small></div>
+    <div class="kicker">readiness scorecard</div>
+  </div>
+  <hr class="rule">
+
+  <div class="hero">
+    <div class="score">
+      <svg class="ring" width="156" height="156" viewBox="0 0 156 156" role="img" aria-label="score 66">
+    <circle cx="78" cy="78" r="73.5" fill="none" stroke="#e4e1da" stroke-width="9"/>
+    <circle cx="78" cy="78" r="73.5" fill="none" stroke="#141414" stroke-width="9"
+      stroke-linecap="butt" stroke-dasharray="461.81" stroke-dashoffset="157.02"
+      transform="rotate(-90 78 78)"/>
+    <text x="78" y="78" text-anchor="middle" dominant-baseline="central"
+      font-family="var(--mono)" font-size="50" font-weight="600" fill="#141414">66</text>
+    
+  </svg>
+      <div style="margin-top:8px"><span class="chip" style="background:#565656">C</span> <span class="kicker" style="margin-left:6px">grade</span></div>
+    </div>
+    <div class="meta">
+      <div class="kicker">target</div>
+      <h1>i18n / CJK readiness</h1>
+      <div class="target">sample</div>
+      <div class="verdict"><b>at risk</b><span>· overall 66/100</span></div>
+      <div class="facts">
+        <div class="fact"><span class="n">4</span><span class="l">files scanned</span></div>
+        <div class="fact"><span class="n">3</span><span class="l">with CJK text</span></div>
+        <div class="fact"><span class="n">18</span><span class="l">hazards found</span></div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="hair">
+  <div class="gauges">
+    <div class="gauge">
+      <div class="g-score ">45</div>
+      <div class="g-label">Text integrity &amp; Trojan Source</div>
+    </div>
+    <div class="gauge">
+      <div class="g-score ">70</div>
+      <div class="g-label">Encoding &amp; mojibake</div>
+    </div>
+    <div class="gauge">
+      <div class="g-score ">61</div>
+      <div class="g-label">Grapheme &amp; length correctness</div>
+    </div>
+    <div class="gauge">
+      <div class="g-score ">70</div>
+      <div class="g-label">Locale-file drift</div>
+    </div>
+    <div class="gauge">
+      <div class="g-score ">70</div>
+      <div class="g-label">Normalization (NFC / NFKC)</div>
+    </div>
+    <div class="gauge">
+      <div class="g-score ">83</div>
+      <div class="g-label">IME composition</div>
+    </div>
+    <div class="gauge">
+      <div class="g-score ">76</div>
+      <div class="g-label">East-Asian width &amp; wrapping</div>
+    </div></div>
+
+  <div style="margin-top:22px">
+    <section class="cat"><div class="cat-h">
+      <span class="name">Text integrity &amp; Trojan Source</span>
+      <span class="chip" style="background:#787878">D</span>
+      <span class="sc">45</span>
+    </div>
+    <div class="blurb">Bidi overrides, invisible/tag characters, homoglyphs and script smuggling — text built to read as one thing and match as another.</div>
+    <div class="bar"><div class="fill" style="width:45%"></div></div>
+    <div class="wt">risk weight 1.4 · <span class="std">Unicode UTS#39 · Trojan Source (CVE-2021-42574)</span></div><div class="finds"><div class="find">
+    <span class="loc">sample/src/format.js:10</span><span class="r">homoglyph-confusable</span>
+    <div class="msg">Token &quot;gооgle&quot; mixes Latin + Cyrillic; U+043E &#39;о&#39;, U+043E &#39;о&#39; is a look-alike borrowed from another script. A reader sees one word, a matcher sees another (homoglyph spoof).</div>
+    <div class="fix"><b>fix</b> Reject or normalize the token. Restrict identifiers to a single script (UTS#39 single-script / highly-restrictive), or skeleton-compare against the Unicode confusables table.</div>
+    <div class="std">Unicode UTS#39 (Security Mechanisms)</div>
+  </div><div class="find">
+    <span class="loc">sample/src/format.js:13</span><span class="r">mixed-script</span>
+    <div class="msg">Token &quot;тест測試&quot; mixes Cyrillic + Han — no single language profile allows that combination; U+6E2C &#39;測&#39;, U+8A66 &#39;試&#39; breaks the dominant Cyrillic run (script smuggling).</div>
+    <div class="fix"><b>fix</b> Apply UTS#39 highly-restrictive script profiles per token; reject combinations no language uses (e.g. Han+Cyrillic, Hangul+Hiragana).</div>
+    <div class="std">Unicode UTS#39 (Security Mechanisms)</div>
+  </div><div class="find">
+    <span class="loc">sample/src/format.js:19</span><span class="r">bidi-control</span>
+    <div class="msg">Bidirectional control U+202E (RIGHT-TO-LEFT OVERRIDE) reorders how text renders versus how it is stored, so the visible order can hide what a parser or model actually reads (Trojan Source).</div>
+    <div class="fix"><b>fix</b> Reject bidi controls (U+202A–202E, U+2066–2069) in source and untrusted input, or require every isolate / embedding to be balanced.</div>
+    <div class="std">Trojan Source (CVE-2021-42574 / UAX#9)</div>
+  </div><div class="find">
+    <span class="loc">sample/src/format.js:22</span><span class="r">invisible-chars</span>
+    <div class="msg">Invisible character U+200B (ZERO WIDTH SPACE) embedded in text. It is not visible but changes what a parser or model receives.</div>
+    <div class="fix"><b>fix</b> Strip default-ignorable format chars (U+200B–200D, U+2060, non-leading U+FEFF) and the tag block (U+E0000–E007F) before processing, or reject any input that contains them.</div>
+    <div class="std">Unicode UTS#39 (Security Mechanisms)</div>
+  </div></div></section><hr class="hair"><section class="cat"><div class="cat-h">
+      <span class="name">Encoding &amp; mojibake</span>
+      <span class="chip" style="background:#565656">C</span>
+      <span class="sc">70</span>
+    </div>
+    <div class="blurb">C1 controls from UTF-8 misread as Latin-1, and code points default font stacks render as tofu boxes.</div>
+    <div class="bar"><div class="fill" style="width:70%"></div></div>
+    <div class="wt">risk weight 1.2 · <span class="std">WHATWG Encoding · Unicode font coverage</span></div><div class="finds"><div class="find">
+    <span class="loc">sample/locales/ja.json:9</span><span class="r">mojibake-c1</span>
+    <div class="msg">String &quot;æ¥ç¶ã§ãã¾ãã&quot; contains a C1 control U+008E; that is the fingerprint of UTF-8 bytes reread as Latin-1/CP1252 (mojibake), not real text.</div>
+    <div class="fix"><b>fix</b> Declare and read the payload as UTF-8 end to end (HTTP Content-Type charset, file BOM handling, CSV import encoding). C1 controls (U+0080-U+009F) never occur in real text; their presence means the bytes were decoded with the wrong charset.</div>
+    <div class="std">Charset mismatch / mojibake (WHATWG Encoding)</div>
+  </div><div class="find">
+    <span class="loc">sample/locales/ja.json:12</span><span class="r">tofu-risk</span>
+    <div class="msg">String &quot;𠮷野家&quot; carries U+20BB7 (CJK Ext-B and beyond); default OS/web font stacks routinely fail to render it, so it shows as a tofu box or falls back to a look-alike glyph.</div>
+    <div class="fix"><b>fix</b> Bundle a font that covers the range (CJK Ext-B fonts such as Noto Serif/Sans CJK, or the vendor font that owns the Private-Use code point). PUA code points carry no universal meaning; Ext-B kanji and rare names render as tofu boxes on unpatched stacks.</div>
+    <div class="std">Unicode font coverage (PUA / CJK Ext-B)</div>
+  </div><div class="find">
+    <span class="loc">sample/locales/ja.json:13</span><span class="r">tofu-risk</span>
+    <div class="msg">String &quot;ロゴ&quot; carries U+F8FF (Private Use Area); default OS/web font stacks routinely fail to render it, so it shows as a tofu box or falls back to a look-alike glyph.</div>
+    <div class="fix"><b>fix</b> Bundle a font that covers the range (CJK Ext-B fonts such as Noto Serif/Sans CJK, or the vendor font that owns the Private-Use code point). PUA code points carry no universal meaning; Ext-B kanji and rare names render as tofu boxes on unpatched stacks.</div>
+    <div class="std">Unicode font coverage (PUA / CJK Ext-B)</div>
+  </div></div></section><hr class="hair"><section class="cat"><div class="cat-h">
+      <span class="name">Grapheme &amp; length correctness</span>
+      <span class="chip" style="background:#565656">C</span>
+      <span class="sc">61</span>
+    </div>
+    <div class="blurb">Truncating or counting by UTF-16 code units splits supplementary kanji and emoji at the surrogate boundary.</div>
+    <div class="bar"><div class="fill" style="width:61%"></div></div>
+    <div class="wt">risk weight 1.2 · <span class="std">Unicode UAX#29 (grapheme clusters)</span></div><div class="finds"><div class="find">
+    <span class="loc">sample/src/Composer.tsx:18</span><span class="r">unsafe-truncate</span>
+    <div class="msg">String is cut by UTF-16 code units (truncate-with-ellipsis); a wide CJK char or emoji at the boundary is split into a lone surrogate.</div>
+    <div class="fix"><b>fix</b> Split by code points before truncating: `Array.from(s).slice(0, n).join(&#39;&#39;)` or `[...s].slice(...)`, or Intl.Segmenter for grapheme-correct width.</div>
+    <div class="std">like cli-table/cli-table3#360, clerk/javascript#9029, markdown-it/markdown-it#1186</div>
+  </div><div class="find">
+    <span class="loc">sample/src/Composer.tsx:21</span><span class="r">cjk-length</span>
+    <div class="msg">.length on the CJK literal &quot;送信ボタン&quot; counts UTF-16 code units; a supplementary-plane kanji or emoji counts as 2.</div>
+    <div class="fix"><b>fix</b> Count code points: `[...s].length`, or grapheme clusters with `Intl.Segmenter` for a user-visible character count.</div>
+    <div class="std">like ianstormtaylor/slate#6074, cli-table/cli-table3#360</div>
+  </div><div class="find">
+    <span class="loc">sample/src/format.js:6</span><span class="r">unsafe-truncate</span>
+    <div class="msg">String is cut by UTF-16 code units (legacy-substr); a wide CJK char or emoji at the boundary is split into a lone surrogate.</div>
+    <div class="fix"><b>fix</b> Split by code points before truncating: `Array.from(s).slice(0, n).join(&#39;&#39;)` or `[...s].slice(...)`, or Intl.Segmenter for grapheme-correct width.</div>
+    <div class="std">like cli-table/cli-table3#360, clerk/javascript#9029, markdown-it/markdown-it#1186</div>
+  </div></div></section><hr class="hair"><section class="cat"><div class="cat-h">
+      <span class="name">Locale-file drift</span>
+      <span class="chip" style="background:#565656">C</span>
+      <span class="sc">70</span>
+    </div>
+    <div class="blurb">Translation keys that exist in English but are missing or blank in another locale ship the English fallback.</div>
+    <div class="bar"><div class="fill" style="width:70%"></div></div>
+    <div class="wt">risk weight 1.1 · <span class="std">Structural locale-catalog diff</span></div><div class="finds"><div class="find">
+    <span class="loc">sample/locales/ja.json:1</span><span class="r">i18n-missing-keys</span>
+    <div class="msg">Key &quot;errors.timeout&quot; is missing from ja; English has &quot;The request timed out&quot;. This language shows the English fallback.</div>
+    <div class="fix"><b>fix</b> Add the missing key to the locale, or remove it from English if it is dead. An empty string is not a translation; it renders blank.</div>
+    <div class="std">like tusen-ai/naive-ui#8114, ant-design/ant-design#58563, hustcc/timeago.js#285</div>
+  </div><div class="find">
+    <span class="loc">sample/locales/ja.json:5</span><span class="r">i18n-missing-keys</span>
+    <div class="msg">Key &quot;app.cancel&quot; is an empty string in ja; English has &quot;Cancel&quot;. It renders blank.</div>
+    <div class="fix"><b>fix</b> Add the missing key to the locale, or remove it from English if it is dead. An empty string is not a translation; it renders blank.</div>
+    <div class="std">like tusen-ai/naive-ui#8114, ant-design/ant-design#58563, hustcc/timeago.js#285</div>
+  </div></div></section><hr class="hair"><section class="cat"><div class="cat-h">
+      <span class="name">Normalization (NFC / NFKC)</span>
+      <span class="chip" style="background:#565656">C</span>
+      <span class="sc">70</span>
+    </div>
+    <div class="blurb">Non-ASCII that folds to ASCII under NFKC slips past a keyword filter that runs before normalization.</div>
+    <div class="bar"><div class="fill" style="width:70%"></div></div>
+    <div class="wt">risk weight 1.0 · <span class="std">Unicode UAX#15 (Normalization Forms)</span></div><div class="finds"><div class="find">
+    <span class="loc">sample/locales/ja.json:9</span><span class="r">nfkc-bypass</span>
+    <div class="msg">&quot;¾&quot; is non-ASCII but normalizes to &quot;3⁄4&quot; under NFKC. A keyword check that runs before normalization sees neither word, so the disguised form slips past it.</div>
+    <div class="fix"><b>fix</b> Normalize to NFKC *before* any keyword / allow-list / deny-list check, never after. Match against the normalized form.</div>
+    <div class="std">Unicode UAX#15 (Normalization Forms)</div>
+  </div><div class="find">
+    <span class="loc">sample/src/format.js:16</span><span class="r">nfkc-bypass</span>
+    <div class="msg">&quot;ｄｅｌｅｔｅ&quot; is non-ASCII but normalizes to &quot;delete&quot; under NFKC. A keyword check that runs before normalization sees neither word, so the disguised form slips past it.</div>
+    <div class="fix"><b>fix</b> Normalize to NFKC *before* any keyword / allow-list / deny-list check, never after. Match against the normalized form.</div>
+    <div class="std">Unicode UAX#15 (Normalization Forms)</div>
+  </div></div></section><hr class="hair"><section class="cat"><div class="cat-h">
+      <span class="name">IME composition</span>
+      <span class="chip" style="background:#343434">B</span>
+      <span class="sc">83</span>
+    </div>
+    <div class="blurb">Enter handlers with no isComposing guard fire on the keystroke that only confirms an IME conversion.</div>
+    <div class="bar"><div class="fill" style="width:83%"></div></div>
+    <div class="wt">risk weight 0.9 · <span class="std">CompositionEvent / isComposing</span></div><div class="finds"><div class="find">
+    <span class="loc">sample/src/Composer.tsx:11</span><span class="r">ime-enter-guard</span>
+    <div class="msg">Enter is handled here with no isComposing guard, so it also fires on the keydown that only confirms an IME conversion.</div>
+    <div class="fix"><b>fix</b> Return early while composing: `if (e.isComposing || e.keyCode === 229) return`. In React read it off `e.nativeEvent.isComposing`; the synthetic event has no isComposing field.</div>
+    <div class="std">like tusen-ai/naive-ui#8115, mrdjohnson/llm-x#53, react-component/mentions#325</div>
+  </div></div></section><hr class="hair"><section class="cat"><div class="cat-h">
+      <span class="name">East-Asian width &amp; wrapping</span>
+      <span class="chip" style="background:#343434">B</span>
+      <span class="sc">76</span>
+    </div>
+    <div class="blurb">Missing spacing between CJK and half-width Latin, and long CJK copy with no break hint (kinsoku).</div>
+    <div class="bar"><div class="fill" style="width:76%"></div></div>
+    <div class="wt">risk weight 0.6 · <span class="std">pangu spacing · budoux (kinsoku)</span></div><div class="finds"><div class="find">
+    <span class="loc">sample/src/Composer.tsx:28</span><span class="r">cjk-latin-spacing</span>
+    <div class="msg">CJK sits directly against half-width text here (&quot;設定を保存しましたWindowsの再起動が必要です&quot;); Japanese copy reads &quot;設定を保存しました Windows の再起動が必要です&quot; with a space between the scripts.</div>
+    <div class="fix"><b>fix</b> Insert a space between CJK and half-width latin/numbers (pangu convention). Auto-fixable with --fix.</div>
+    <div class="std">like google/budoux#budoux</div>
+  </div><div class="find">
+    <span class="loc">sample/src/Composer.tsx:28</span><span class="r">cjk-line-break</span>
+    <div class="msg">Long CJK copy (&quot;設定を保存しましたWindowsの再起動が必要です&quot;) has no break hint; the browser can wrap before closing punctuation (kinsoku). budoux splits it as ｜設定を｜保存しました｜Windowsの｜再起動が….</div>
+    <div class="fix"><b>fix</b> Insert &lt;wbr&gt; at budoux boundaries (or CSS `line-break: strict; word-break: keep-all`) so the browser does not wrap before 。、」）.</div>
+    <div class="std">like google/budoux#budoux</div>
+  </div><div class="find">
+    <span class="loc">sample/src/Composer.tsx:30</span><span class="r">cjk-line-break</span>
+    <div class="msg">Long CJK copy (&quot;この操作は取り消すことができませんので、よろしければ確認ボタンを押して続行してください。&quot;) has no break hint; the browser can wrap before closing punctuation (kinsoku). budoux splits it as ｜この｜操作は｜取り消すことができませんので、｜よろしければ….</div>
+    <div class="fix"><b>fix</b> Insert &lt;wbr&gt; at budoux boundaries (or CSS `line-break: strict; word-break: keep-all`) so the browser does not wrap before 。、」）.</div>
+    <div class="std">like google/budoux#budoux</div>
+  </div></div></section><hr class="hair">
+  </div>
+
+  <div class="note"><b>18</b> hazards across <b>4</b> files (<b>3</b> carry CJK text). The grade is a risk-weighted hazard score, not a coverage measure — a category with no findings scores 100.<br><br>
+    Every check is deterministic and reuses a vetted primitive — no model, no network. Reliability findings map to a real merged open-source pull request in the CJK failure corpus; integrity findings map to the Unicode security standard they violate.</div>
+
+  <div class="foot">
+    <div>generated <span class="mono">2026-07-04 18:43 UTC</span> · greymoth i18n / cjk readiness scorecard</div>
+    <div class="mono">UTS#39 · UAX#15 · UAX#29 · CVE-2021-42574</div>
+  </div>
+</div></body></html>

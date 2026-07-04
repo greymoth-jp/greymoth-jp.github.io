@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>i18n / cjk readiness scorecard</title>
+<meta name="description" content="A command-line scorecard that scans a repo for the text bugs that break Japanese, Korean, Chinese, emoji, and RTL input — grapheme miscounts, IME-submit races, homoglyphs, locale drift. Grade out of 100, shareable card, README badge, CI gate.">
+<meta property="og:title" content="i18n / cjk readiness scorecard">
+<meta property="og:description" content="Scan a repo for the text bugs that break CJK, emoji, and RTL. Grade /100, share card, README badge, CI gate. Free, no waitlist.">
+<style>
+  :root{ --ink:#141414; --paper:#f7f6f2; --track:#e4e1da; --dim:#7a776f;
+    --sans:"Helvetica Neue",Helvetica,Arial,"Segoe UI",system-ui,sans-serif;
+    --mono:ui-monospace,"SFMono-Regular","Menlo","Consolas","Liberation Mono",monospace; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.55;
+    background-image:radial-gradient(rgba(20,20,20,.05) .6px,transparent .6px);background-size:4px 4px}
+  .mono{font-family:var(--mono)}
+  .wrap{max-width:760px;margin:0 auto;padding:56px 22px 80px}
+  header{border-bottom:1px solid var(--ink);padding-bottom:20px;margin-bottom:34px}
+  .kicker{font-size:11px;letter-spacing:2.4px;text-transform:uppercase;color:var(--dim)}
+  .brand{font-weight:700;letter-spacing:.4px;font-size:13px}
+  .brand small{font-weight:400;color:var(--dim);letter-spacing:2px;text-transform:uppercase;font-size:10px;margin-left:10px}
+  h1{font-size:32px;line-height:1.1;margin:18px 0 10px;font-weight:700;letter-spacing:-.3px}
+  .lede{font-size:16px;color:#3d3b36;max-width:60ch;margin:0}
+  h2{font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);
+    margin:40px 0 14px;font-weight:700}
+  p{margin:0 0 14px;max-width:64ch}
+  a{color:var(--ink);text-decoration:none;border-bottom:1px solid #b7b4ac}
+  a:hover{border-bottom-color:var(--ink)}
+  pre{background:#fff;border:1px solid var(--track);padding:14px 16px;overflow-x:auto;
+    font-family:var(--mono);font-size:13px;margin:0 0 14px}
+  .cmd .p{color:#98958d}
+  ul{padding-left:0;list-style:none;margin:0 0 14px}
+  li{padding:9px 0;border-bottom:1px solid var(--track);font-size:14.5px;color:#3d3b36}
+  li b{font-weight:600;color:var(--ink)}
+  li .mono{font-size:12.5px;color:#55524b}
+  .cta{display:inline-block;border:1px solid var(--ink);background:var(--ink);color:var(--paper);
+    padding:11px 20px;font-size:13px;letter-spacing:.4px;margin:6px 12px 6px 0}
+  .cta.ghost{background:transparent;color:var(--ink)}
+  .cta:hover{border-bottom:1px solid var(--ink)}
+  .badge-demo{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:#fff;
+    border:1px solid var(--track);padding:16px;margin:0 0 14px}
+  .badge-demo img{height:20px}
+  .note{background:#fff;border:1px solid var(--track);padding:15px 17px;font-size:12.5px;color:#55524b;margin:0 0 14px}
+  footer{display:flex;justify-content:space-between;gap:18px;margin-top:52px;padding-top:16px;
+    border-top:1px solid var(--ink);font-size:11px;color:var(--dim);flex-wrap:wrap}
+  footer a{border-bottom:none;color:#55524b}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">greymoth <small>field tools</small></div>
+  </header>
+
+  <div class="kicker">command-line · free · no waitlist</div>
+  <h1>i18n / cjk readiness scorecard</h1>
+  <p class="lede">Point it at a repo. It scans for the text bugs that quietly break Japanese, Korean, Chinese, emoji, and right-to-left input — then grades the repo out of 100, with a shareable card, a README badge, and an exit code you can gate CI on.</p>
+
+  <h2>Run it</h2>
+  <pre class="cmd mono"><span class="p">$</span> npx @greymoth/i18n-scorecard ./your-repo</pre>
+  <p>Writes a scorecard, a 1200×630 share card, and a badge into <span class="mono">./i18n-report/</span>. No config, no account, nothing leaves your machine.</p>
+  <a class="cta" href="sample.html">See a sample scorecard →</a>
+  <a class="cta ghost" href="share-card.html">The share card</a>
+
+  <h2>What it looks for</h2>
+  <ul>
+    <li><b>Grapheme miscounts</b> — a <span class="mono">.length</span> or <span class="mono">.substring</span> that splits a kanji or a flag emoji in half.</li>
+    <li><b>IME-submit races</b> — an Enter handler that fires mid-conversion, submitting half-typed Japanese.</li>
+    <li><b>Homoglyphs &amp; invisibles</b> — Cyrillic <span class="mono">а</span> posing as Latin <span class="mono">a</span>, zero-width characters splicing a token.</li>
+    <li><b>Locale drift</b> — a translation file silently falling behind its English source.</li>
+    <li><b>Encoding &amp; width</b> — UTF-8 read as Latin-1, fullwidth forms surviving normalization into something dangerous.</li>
+  </ul>
+  <p>Thirteen checks across seven categories. The detection is lifted straight from a year of real fixes — <a href="../cursed-strings/">catalogued here</a> — not written from a checklist.</p>
+
+  <h2>Badge it</h2>
+  <div class="badge-demo">
+    <img src="badge.svg" alt="i18n readiness badge">
+    <span class="mono" style="font-size:12px;color:#55524b">drops into a README from <span style="color:#111">badge.md</span></span>
+  </div>
+  <div class="note">The score is a hazard reading, not a coverage grade: a repo with no CJK, emoji, or RTL text scans clean and scores 100 because it has nothing to get wrong. It earns its keep on codebases that actually handle international text.</div>
+
+  <h2>Where it comes from</h2>
+  <p>Built on <a href="../cursed-strings/">Cursed Strings</a>, a field guide to real text bugs, and a <a href="https://github.com/greymoth-jp/cjk-failure-corpus">public corpus</a> of the CJK/Unicode ones — each linked to an actual pull request, not remembered.</p>
+
+  <a class="cta" href="https://github.com/greymoth-jp">github.com/greymoth-jp</a>
+
+  <footer>
+    <span>greymoth · field tools</span>
+    <span class="mono"><a href="https://github.com/greymoth-jp/cjk-failure-corpus">cjk-failure-corpus</a></span>
+  </footer>
+</div>
+</body>
+</html>
