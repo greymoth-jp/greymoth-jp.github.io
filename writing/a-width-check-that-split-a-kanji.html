@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A width check said the string was safe to cut. It split a kanji in half. — greymoth</title>
+<meta name="description" content="A one-line fast path in cli-table3 decided a string was safe to cut by raw index, then split 𠮷 (U+20BB7) in half. The full diagnosis, the fix, the failing fixture, and the same split-a-code-point shape in four more libraries — opentype.js, slate, clerk, markdown-it.">
+<link rel="canonical" href="https://greymoth-jp.github.io/writing/a-width-check-that-split-a-kanji.html">
+<link rel="alternate" type="application/atom+xml" title="greymoth — launches" href="https://greymoth-jp.github.io/feed.xml">
+
+<!-- Open Graph -->
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://greymoth-jp.github.io/writing/a-width-check-that-split-a-kanji.html">
+<meta property="og:title" content="A width check said the string was safe to cut. It split a kanji in half.">
+<meta property="og:description" content="A surrogate-pair wide character satisfies length === width for the opposite reason, walks into a fast path built for ASCII, and gets sliced mid-kanji. The diagnosis, the fix, and four more libraries with the same shape.">
+<meta property="og:image" content="https://greymoth-jp.github.io/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="A width check said the string was safe to cut. It split a kanji in half.">
+<meta name="twitter:description" content="The one-line shortcut that split 𠮷 in half, the fix, the failing fixture, and the same shape in opentype.js, slate, clerk and markdown-it.">
+<meta name="twitter:image" content="https://greymoth-jp.github.io/og.png">
+
+<!-- Structured data — Article -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "A width check said the string was safe to cut. It split a kanji in half.",
+  "description": "A one-line fast path in cli-table3 slices a surrogate-pair wide character (𠮷, U+20BB7) mid-code-point. The diagnosis, the fix, the failing fixture, and the same split-a-code-point shape in opentype.js, slate, clerk and markdown-it.",
+  "author": { "@type": "Person", "name": "greymoth", "url": "https://greymoth-jp.github.io/" },
+  "publisher": { "@type": "Person", "name": "greymoth", "url": "https://greymoth-jp.github.io/" },
+  "datePublished": "2026-07-03",
+  "mainEntityOfPage": "https://greymoth-jp.github.io/writing/a-width-check-that-split-a-kanji.html",
+  "keywords": "Unicode, surrogate pair, CJK, East Asian width, JavaScript, cli-table3, code point, grapheme cluster, truncation",
+  "isPartOf": { "@type": "Collection", "name": "CJK / Unicode Failure Corpus", "url": "https://greymoth-jp.github.io/cjk-failure-corpus/" }
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --paper:#f4f4f2;        /* cool bone white */
+    --ink:#0b0b0b;          /* near-black */
+    --soft:#3a3a38;         /* body gray */
+    --faded:#8c8c87;        /* labels */
+    --hair:#d3d3cd;         /* hairlines */
+    --ghost:#cdcdc7;        /* registration-offset gray */
+    --code:#efefec;         /* code panel skin */
+    --disp:"Archivo Black",Impact,sans-serif;
+    --mono:"Space Mono","SFMono-Regular",ui-monospace,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  html,body{overflow-x:hidden}
+  ::selection{background:var(--ink);color:var(--paper)}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--mono);
+    font-size:15px;
+    line-height:1.6;
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{
+    max-width:720px;
+    margin:0 auto;
+    padding:clamp(22px,5vw,40px) clamp(18px,5vw,30px) 72px;
+  }
+
+  /* ---- masthead ---- */
+  .masthead{
+    display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;
+    font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+    padding:9px 0;border-top:2px solid var(--ink);border-bottom:1px solid var(--ink);color:var(--ink);
+  }
+  .masthead .brand{display:flex;align-items:center;gap:9px;font-weight:700}
+  .masthead .sq{width:9px;height:9px;background:var(--ink);display:inline-block}
+  .masthead .mid{color:var(--faded);letter-spacing:.22em}
+  .masthead .ed{color:var(--faded)}
+  @media(max-width:560px){.masthead .mid{display:none}}
+  .masthead a{transition:opacity .12s ease}
+  .masthead a:hover{opacity:.55}
+
+  /* ---- article header ---- */
+  header{padding:clamp(30px,6vw,52px) 0 clamp(18px,4vw,26px)}
+  .eyebrow{
+    font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--faded);margin:0 0 18px;
+    display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+  }
+  .eyebrow .sep{color:var(--hair)}
+  h1{
+    font-family:var(--disp);font-weight:400;
+    font-size:clamp(27px,5.6vw,44px);
+    line-height:1.03;letter-spacing:-.015em;margin:0;
+    text-shadow:.035em .04em 0 var(--ghost);
+    overflow-wrap:break-word;
+  }
+  .dek{
+    font-family:var(--mono);font-size:clamp(14px,2.3vw,16px);
+    color:var(--soft);margin:22px 0 0;max-width:62ch;line-height:1.6;
+    padding-left:16px;border-left:2px solid var(--ink);
+  }
+  .dek b{color:var(--ink);font-weight:700}
+
+  /* ---- prose body ---- */
+  .body{max-width:64ch}
+  .body h2{
+    font-family:var(--disp);font-weight:400;text-transform:uppercase;
+    font-size:clamp(16px,3.8vw,22px);line-height:1.08;letter-spacing:-.01em;
+    margin:44px 0 4px;text-shadow:.03em .035em 0 var(--ghost);
+  }
+  .body h2::before{
+    content:"";display:block;width:38px;height:2px;background:var(--ink);margin:0 0 16px;
+  }
+  .body p{font-size:14.5px;color:var(--soft);margin:16px 0 0;line-height:1.68}
+  .body p b{color:var(--ink);font-weight:700}
+  .body p code,.body li code{
+    font-family:var(--mono);font-size:.88em;
+    background:var(--code);border:1px solid var(--hair);border-radius:2px;
+    padding:1px 5px;color:var(--ink);white-space:nowrap;
+  }
+  .body ul{margin:16px 0 0;padding-left:0;list-style:none}
+  .body ul li{
+    font-size:14px;color:var(--soft);line-height:1.62;margin:9px 0 0;
+    padding-left:20px;position:relative;
+  }
+  .body ul li::before{
+    content:"";position:absolute;left:2px;top:9px;width:7px;height:7px;background:var(--ink);
+  }
+  .body ul li b{color:var(--ink);font-weight:700}
+
+  /* code blocks — scroll inside their own box, never the page */
+  pre{
+    margin:20px 0 0;background:var(--code);
+    border:2px solid var(--ink);border-radius:2px;
+    padding:16px clamp(12px,3vw,18px);
+    overflow-x:auto;-webkit-overflow-scrolling:touch;
+  }
+  pre code{
+    font-family:var(--mono);font-size:13px;line-height:1.6;
+    color:var(--ink);white-space:pre;display:block;
+  }
+  pre code .cm{color:var(--faded)}
+
+  /* the three-numbers table */
+  .tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:20px 0 0}
+  table{border-collapse:collapse;width:100%;min-width:420px;font-size:13px}
+  th,td{border:2px solid var(--ink);padding:9px 12px;text-align:left}
+  th{font-family:var(--mono);font-weight:700;text-transform:uppercase;font-size:11px;letter-spacing:.06em}
+  td:first-child{font-family:var(--mono);font-size:15px;color:var(--ink)}
+  td{color:var(--soft)}
+
+  .callout{
+    font-size:13px;color:var(--soft);margin:22px 0 0;max-width:64ch;
+    padding-left:16px;border-left:2px solid var(--hair);line-height:1.6;
+  }
+  .callout b{color:var(--ink);font-weight:700}
+
+  /* ---- section label ---- */
+  .label{
+    font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--ink);font-weight:700;margin:52px 0 8px;
+    display:flex;align-items:center;gap:14px;
+  }
+  .label .n{color:var(--faded);font-family:var(--disp);font-size:14px}
+  .label::after{content:"";flex:1;height:2px;background:var(--ink)}
+  .lead{font-size:13px;color:var(--soft);margin:0 0 18px;max-width:64ch;line-height:1.6}
+  .lead b{color:var(--ink);font-weight:700}
+
+  /* ---- the family cards (added depth) ---- */
+  .fam{border:2px solid var(--ink);border-top:none}
+  .fam .card{border-top:2px solid var(--ink);padding:20px clamp(14px,3.5vw,22px)}
+  .fam .fh{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+  .fam .name{
+    font-family:var(--disp);font-weight:400;text-transform:uppercase;
+    font-size:clamp(15px,3.4vw,19px);line-height:1.05;letter-spacing:-.01em;
+    text-shadow:.025em .03em 0 var(--ghost);overflow-wrap:break-word;
+  }
+  .fam .st{
+    font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;
+    border:1.5px solid var(--ink);padding:3px 8px;color:var(--ink);
+  }
+  .fam .st.open{border-style:dashed;color:var(--soft)}
+  .fam .rows{margin:15px 0 0;display:grid;gap:10px}
+  .fam .rr{display:grid;grid-template-columns:74px 1fr;gap:14px;align-items:start}
+  .fam .rk{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faded);font-weight:700;padding-top:2px}
+  .fam .rv{font-size:13px;color:var(--soft);line-height:1.55;max-width:52ch}
+  .fam .rv b{color:var(--ink);font-weight:700}
+  .fam .rv code{
+    font-family:var(--mono);font-size:.86em;background:var(--paper);
+    border:1px solid var(--hair);border-radius:2px;padding:1px 5px;white-space:nowrap;
+  }
+  .fam .links{display:flex;gap:16px;flex-wrap:wrap;margin-top:15px}
+  .fam .links a{
+    font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+    border-bottom:1.5px solid var(--ink);padding-bottom:2px;transition:opacity .12s ease;
+  }
+  .fam .links a:hover{opacity:.55}
+  @media(max-width:540px){
+    .fam .rr{grid-template-columns:1fr;gap:3px}
+    .fam .rk{padding-top:0}
+  }
+
+  /* ---- read-next / verify block ---- */
+  .next{border:2px solid var(--ink);margin-top:20px}
+  .next a{
+    display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+    padding:15px clamp(14px,3.4vw,20px);border-bottom:2px solid var(--ink);
+    transition:background .12s ease,color .12s ease;
+  }
+  .next a:last-child{border-bottom:none}
+  .next a:hover{background:var(--ink);color:var(--paper)}
+  .next .nt{font-family:var(--mono);font-weight:700;font-size:13px}
+  .next .nd{font-size:11px;color:var(--faded);letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+  .next a:hover .nd{color:#bdbdb7}
+
+  .sig{
+    font-family:var(--mono);font-size:13px;color:var(--ink);
+    margin:38px 0 0;padding-top:20px;border-top:2px solid var(--ink);
+  }
+  .sig a{border-bottom:1.5px solid var(--ink);padding-bottom:1px}
+  .sig a:hover{opacity:.55}
+
+  .backline{display:flex;gap:16px;flex-wrap:wrap;margin-top:30px}
+  .backline a{font-size:12px;color:var(--ink);border-bottom:1.5px solid var(--ink);padding-bottom:2px;transition:opacity .12s ease}
+  .backline a:hover{opacity:.55}
+
+  footer{
+    margin-top:46px;padding-top:16px;border-top:2px solid var(--ink);
+    font-size:11px;color:var(--faded);letter-spacing:.08em;text-transform:uppercase;
+    display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="masthead">
+    <span class="brand"><span class="sq"></span> <a href="https://greymoth-jp.github.io/">greymoth</a></span>
+    <span class="mid">proof, not pitch</span>
+    <span class="ed"><a href="https://greymoth-jp.github.io/writing/">Writing</a> · Nº 01</span>
+  </div>
+
+  <header>
+    <p class="eyebrow">field note <span class="sep">/</span> surrogate &amp; grapheme <span class="sep">/</span> 2026-07-03</p>
+    <h1>A width check said the string was safe to cut. It split a kanji in half.</h1>
+    <p class="dek">A <b>text-boundary failure</b>: measure a string by one unit, then cut it by another. A one-line fast path built for ASCII sliced a character mid-code-point — and it bit hardest on 𠮷 (U+20BB7), a rare form of a real Japanese surname, precisely because that character is a surrogate pair <b>and</b> full-width at once. The bug is universal; the rare kanji is just where it surfaces first.</p>
+  </header>
+
+  <div class="body">
+
+    <p>A name went into a terminal table and came out broken. The surname was 𠮷田. That first character is not the ordinary 吉 you get from the 吉 key, it is 𠮷 (U+20BB7), a rarer form that real people in Japan actually have on their family register. The table truncated the cell to fit a column, and what printed was 𠮷 followed by a replacement character. The kanji had been cut in half.</p>
+
+    <p>The interesting part is where the bug lived. Not in the truncation loop. In a one-line shortcut that decided, before truncating, that this particular string was safe to cut by raw index. It was wrong, and it was wrong for a reason that only shows up on the exact character I just described.</p>
+
+    <h2>Three numbers that are usually the same, and one string where they aren't</h2>
+
+    <p>A JavaScript string has more than one length depending on what you ask.</p>
+
+    <ul>
+      <li><code>"𠮷".length</code> is <code>2</code>. <code>.length</code> counts UTF-16 code units, and 𠮷 lives outside the Basic Multilingual Plane, so it is stored as a surrogate pair: two code units, <code>𠮷</code>.</li>
+      <li>Its code-point count is <code>1</code>. <code>[..."𠮷"].length</code> is <code>1</code>.</li>
+      <li>Its display width, the number of terminal columns it occupies, is <code>2</code>. It is an East Asian wide character.</li>
+    </ul>
+
+    <p>For plain ASCII these all collapse to the same number. <code>"abc"</code> is 3 code units, 3 code points, 3 columns. That coincidence is what a lot of text code quietly leans on. It holds right up until a character makes two of those numbers agree for different reasons.</p>
+
+    <p>𠮷 is exactly that character. Two code units because it is a surrogate pair. Two columns because it is wide. Same number, <code>2</code>, arrived at two completely different ways. Hold onto that, it is the whole bug.</p>
+
+    <h2>The real code</h2>
+
+    <p>This is the truncation helper in cli-table3, the library a lot of CLIs use to draw tables. <code>strlen</code> here is display width. It strips ANSI color codes and runs the string through <code>string-width</code>, which counts a wide CJK character as 2. So <code>strlen</code> answers "how many columns," not "how many characters."</p>
+
+<pre><code>function truncateWidth(str, desiredLength) {
+  if (str.length === strlen(str)) {
+    return str.substr(0, desiredLength);
+  }
+
+  while (strlen(str) > desiredLength) {
+    str = str.slice(0, -1);
+  }
+
+  return str;
+}</code></pre>
+
+    <p>Read the first branch as an optimization. "If the code-unit length equals the display width, then every character is one unit and one column, so there are no wide characters and nothing tricky, I can just cut by index with <code>substr</code>." For <code>"abc"</code> that is true, <code>3 === 3</code>, cut away.</p>
+
+    <p>Now feed it <code>"𠮷𠮷"</code>. Code-unit length is <code>4</code>. Display width is <code>4</code>. <code>4 === 4</code>, so the branch fires and it cuts by code unit:</p>
+
+<pre><code>"𠮷𠮷".substr(0, 3)   <span class="cm">// "𠮷" + "\uD842"</span></code></pre>
+
+    <p><code>substr(0, 3)</code> takes three code units: the full first 𠮷, then the high surrogate of the second one. The low surrogate is left behind. You get one clean kanji followed by a lone high surrogate <code>\uD842</code>, which is not a character at all. Terminals render it as the replacement box. That is the half a kanji in the table cell.</p>
+
+    <p>The shortcut was built for the case where length equals width because everything is one-to-one. A surrogate-pair wide character satisfies <code>length === width</code> too, <code>2 === 2</code>, but for the opposite reason, both numbers are 2 because the character is doubled on both axes. It walks straight into the fast path and gets sliced by index, which is the one thing that path assumed it would never have to do.</p>
+
+    <h2>Why it survived</h2>
+
+    <p>The obvious question is how a CJK bug survives in a table library that people clearly use with CJK. The answer is that ordinary Japanese and Chinese text never reaches this branch.</p>
+
+    <p>Take 漢. It is <code>U+6F22</code>, inside the BMP, so <code>"漢".length</code> is <code>1</code>. Its width is <code>2</code>. <code>1 === 2</code> is false, so 漢 skips the fast path entirely and goes to the <code>while</code> loop below. Every common kanji, every kana, every Hangul syllable behaves this way: one code unit, two columns, length never equals width. They are all safe.</p>
+
+    <p>The fast path only misfires when a single character is a surrogate pair <b>and</b> wide. That intersection is small. It is CJK Extension B and beyond, the rare kanji that show up in personal names and place names, plus emoji, which are also non-BMP and mostly width 2. So the library worked for years of 東京 and 漢字 and quietly mangled 𠮷田 and anything with an emoji in a narrow column. The common case took a different branch, so the shortcut looked safe.</p>
+
+    <p>The slow path had a milder version of the same disease, by the way. <code>str.slice(0, -1)</code> removes one code unit, not one character. Hand the loop a string ending in a surrogate pair and it lops off a low surrogate on the first pass and leaves the high one dangling. Same family, quieter symptom.</p>
+
+    <h2>The fix</h2>
+
+    <p>Two changes. Guard the fast path so it refuses any string that contains a high surrogate, and make the slow path trim whole code points instead of code units.</p>
+
+<pre><code>function truncateWidth(str, desiredLength) {
+  <span class="cm">// `str.length === strlen(str)` is also true for surrogate-pair characters</span>
+  <span class="cm">// (e.g. CJK Extension B or emoji), which count as 2 code units and 2 columns.</span>
+  <span class="cm">// `substr`/`slice` cut by code unit, so exclude them here and trim by code</span>
+  <span class="cm">// point below to avoid splitting a surrogate pair into a lone surrogate.</span>
+  if (str.length === strlen(str) &amp;&amp; !/[\uD800-\uDBFF]/.test(str)) {
+    return str.substr(0, desiredLength);
+  }
+
+  let chars = Array.from(str);
+  while (strlen(chars.join('')) &gt; desiredLength) {
+    chars.pop();
+  }
+
+  return chars.join('');
+}</code></pre>
+
+    <p><code>Array.from(str)</code> iterates by code point, so <code>Array.from("𠮷𠮷")</code> is a two-element array, each element a whole kanji. <code>pop()</code> removes one whole character. The loop can no longer stop in the middle of a surrogate pair because there is no middle to stop in. The fast path stays for the genuinely simple case, ASCII and other strings with no surrogates, where <code>substr</code> is both correct and cheaper.</p>
+
+    <p>Worth naming the tools. <code>Array.from</code> and the spread operator both split by code point, which fixes surrogate pairs. They do not split by grapheme, so a flag emoji or a family emoji built from several code points joined with zero-width joiners will still come apart. If you need whole user-perceived characters, that is <code>Intl.Segmenter</code> with <code>granularity: 'grapheme'</code>. Code point was the right level here because the unit of width is the code point, but know which one you are reaching for.</p>
+
+    <h2>The failing fixture</h2>
+
+    <p>This is the test that goes red before the fix and green after. It is the whole point, because the fix is one line and the value is keeping it fixed, not finding it once.</p>
+
+<pre><code>it('does not split a surrogate-pair wide char (CJK Ext B)', function () {
+  let kanji = String.fromCodePoint(0x20bb7);          <span class="cm">// 𠮷</span>
+  expect(truncate('a' + kanji + 'bc', 4)).toEqual('a' + kanji + '…');
+  expect(truncate('a' + kanji + 'bc', 3)).toEqual('a…');
+  expect(truncate(kanji + kanji, 3)).toEqual(kanji + '…');
+});
+
+it('does not split a surrogate-pair wide char (emoji)', function () {
+  let emoji = String.fromCodePoint(0x1f600);
+  expect(truncate('a' + emoji + 'bc', 3)).toEqual('a…');
+  expect(truncate('x' + emoji + emoji + 'y', 4)).toEqual('x' + emoji + '…');
+});</code></pre>
+
+    <p>Note the inputs are built with <code>String.fromCodePoint</code>, not pasted glyphs. That keeps the test readable in any editor and makes the code point explicit, so nobody later "cleans up" 𠮷 into 吉 and deletes the coverage without noticing. The assertion that matters most is <code>truncate(kanji + kanji, 3)</code>: a width budget that lands between the two columns of the second character. The old code returned a lone surrogate there. That is the exact spot the bug lives.</p>
+
+    <h2>The check, for the next one</h2>
+
+    <p>The general shape is bigger than one library. Any code that truncates, pads, aligns, or measures text is juggling three different numbers for one string, and it is only correct if it uses the same one throughout:</p>
+
+    <div class="tbl-scroll">
+    <table>
+      <thead>
+        <tr><th>string</th><th>code units (<code>.length</code>)</th><th>code points</th><th>display columns</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>abc</td><td>3</td><td>3</td><td>3</td></tr>
+        <tr><td>漢字</td><td>2</td><td>2</td><td>4</td></tr>
+        <tr><td>𠮷</td><td>2</td><td>1</td><td>2</td></tr>
+        <tr><td>😀</td><td>2</td><td>1</td><td>2</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <p>The failure mode is always the same: measure by one number, cut by another. cli-table3 measured width, then cut by code unit, and the two disagreed on the one character where they happened to be equal for different reasons. So the check is a habit, not a rule. When you slice a string with <code>substr</code>, <code>slice</code>, or a bare index, ask what unit that index is in. It is code units. Then ask whether the length you compared it against was in the same unit. If you measured display width or code points and then cut by index, you have this bug, and it is invisible until a non-BMP character walks through.</p>
+
+    <p>And test it deliberately. One CJK Extension B character, <code>String.fromCodePoint(0x20bb7)</code>, and one emoji, at a width that lands mid-character. ASCII will never show you this. You have to hand the function the input it is quietly afraid of.</p>
+
+    <p>This one is a single entry in a corpus of 97 real CJK, IME, and Unicode failures I have been collecting, most of them one-line fixes hiding in libraries that work perfectly in English. The same split-a-code-point shape shows up in four more places — and below, unlike the short version of this post, I've pulled each one out of the corpus in full so you can see the shape repeat, and check every diagnosis against a diff.</p>
+
+  </div>
+
+  <!-- ADDED DEPTH — not in the dev.to version -->
+  <p class="label"><span class="n">+</span> The same shape, four more places</p>
+  <p class="lead">cli-table3 measured one unit and cut by another. Once you hold that shape in your head you start seeing it everywhere: a font decode table, a rich-text cursor, a second truncation helper, a punctuation pass. All four below sit in the same corpus category — <b>surrogate &amp; grapheme</b>: code that walks text by UTF-16 code unit or bare code point instead of by grapheme cluster. One of them isn't even CJK — <b>slate splits Hindi conjuncts</b> — which is the point: this is a universal text-boundary error, not a Japanese-only one. Two are still open and two merged nowhere; I'm keeping the closed ones in the record because the diagnosis stands whether or not the maintainer took the diff.</p>
+
+  <div class="fam">
+
+    <div class="card">
+      <div class="fh">
+        <span class="name">opentype.js — cmap clamp</span>
+        <span class="st open">open · PR #858</span>
+      </div>
+      <div class="rows">
+        <div class="rr"><span class="rk">Shape</span><span class="rv">The decode side of the same coin. A cmap format 12/13 subtable maps <b>character codes</b> to glyphs, and opentype.js never clamped those codes to the Unicode ceiling of <code>U+10FFFF</code>.</span></div>
+        <div class="rr"><span class="rk">Breaks</span><span class="rv">A malformed font with out-of-range codes sends glyph lookup off the end for supplementary characters — emoji and CJK Extension B+ resolve to the wrong glyph.</span></div>
+        <div class="rr"><span class="rk">Fix</span><span class="rv">Clamp every format 12/13 <code>startCharCode</code> / <code>endCharCode</code> to <code>0x10FFFF</code> during parsing.</span></div>
+      </div>
+      <div class="links">
+        <a href="https://github.com/opentypejs/opentype.js/pull/858">the diff on GitHub ↗</a>
+        <a href="https://greymoth-jp.github.io/cjk-failure-corpus/e/opentype-cmap-clamp.html">corpus entry ↗</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="fh">
+        <span class="name">slate — Indic conjuncts</span>
+        <span class="st open">open · PR #6074</span>
+      </div>
+      <div class="rows">
+        <div class="rr"><span class="rk">Shape</span><span class="rv">The next level up the ladder from code points. A code point is the right unit for width; it is the <b>wrong</b> unit for a cursor. Slate's grapheme segmentation skips Unicode UAX #29 rule GB9c, so an Indic conjunct cluster — consonant + virama + consonant — splits across a boundary.</span></div>
+        <div class="rr"><span class="rk">Breaks</span><span class="rv">Type <code>क्ष</code> in Hindi, press Backspace, and only one code point is deleted instead of the whole cluster. Same class of "walked text by the wrong unit," one rung higher: code point where it needed grapheme.</span></div>
+        <div class="rr"><span class="rk">Fix</span><span class="rv">Apply GB9c: treat <code>Indic_Conjunct_Break=Linker</code> sequences as a single grapheme cluster.</span></div>
+      </div>
+      <div class="links">
+        <a href="https://github.com/ianstormtaylor/slate/pull/6074">the diff on GitHub ↗</a>
+        <a href="https://greymoth-jp.github.io/cjk-failure-corpus/e/slate-indic-conjunct-grapheme.html">corpus entry ↗</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="fh">
+        <span class="name">clerk — truncate, again</span>
+        <span class="st">closed · PR #9029</span>
+      </div>
+      <div class="rows">
+        <div class="rr"><span class="rk">Shape</span><span class="rv">Almost a carbon copy of cli-table3, in a web UI. Clerk's <code>truncateWithEndVisible</code> falls back to <code>substring</code> / <code>slice</code> on raw code units in its short-width path.</span></div>
+        <div class="rr"><span class="rk">Breaks</span><span class="rv">An email or name containing an emoji, rendered through the short-width fallback, ends mid-surrogate-pair and shows a <code>?</code> or a replacement box — the browser's version of the terminal's half a kanji.</span></div>
+        <div class="rr"><span class="rk">Fix</span><span class="rv">Split by code point with <code>Array.from</code> / spread before truncating, or step up to <code>Intl.Segmenter</code>. Same fix as cli-table3. This one didn't land.</span></div>
+      </div>
+      <div class="links">
+        <a href="https://github.com/clerk/javascript/pull/9029">the diff on GitHub ↗</a>
+        <a href="https://greymoth-jp.github.io/cjk-failure-corpus/e/clerk-truncate-surrogate.html">corpus entry ↗</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="fh">
+        <span class="name">markdown-it — smart quotes</span>
+        <span class="st">closed · PR #1186</span>
+      </div>
+      <div class="rows">
+        <div class="rr"><span class="rk">Shape</span><span class="rv">The same blind spot in a text pass rather than a length. markdown-it's smart-quotes replacement decides whether a character is whitespace or punctuation with a check that doesn't account for non-BMP characters (<code>U+10000</code> and up).</span></div>
+        <div class="rr"><span class="rk">Breaks</span><span class="rv">A straight quote next to a supplementary symbol or emoji pairs wrong or is left un-converted — the "is this a boundary" question answered by the wrong unit again.</span></div>
+        <div class="rr"><span class="rk">Fix</span><span class="rv">Make the whitespace / punctuation class checks Unicode-aware, or iterate by code point. Also closed, kept for the record.</span></div>
+      </div>
+      <div class="links">
+        <a href="https://github.com/markdown-it/markdown-it/pull/1186">the diff on GitHub ↗</a>
+        <a href="https://greymoth-jp.github.io/cjk-failure-corpus/e/markdown-it-nonbmp-smartquotes.html">corpus entry ↗</a>
+      </div>
+    </div>
+
+  </div>
+
+  <p class="callout">Read them in a row and the family resolves: <b>measure by one unit, act by another.</b> cli-table3 and clerk measured width and cut by code unit. opentype.js decoded by a code that outran the code-point ceiling. slate walked a cursor by code point where the unit was grapheme. markdown-it answered a boundary question by a class check blind to non-BMP. Same wrong assumption — that the convenient number and the correct number are the same one — wearing five different costumes. Grouping by the broken assumption instead of the symptom is what tells you the order to fix things, and where the next one shows up.</p>
+
+  <p class="label"><span class="n">→</span> Read next / verify</p>
+  <div class="next">
+    <a href="https://github.com/cli-table/cli-table3/pull/360">
+      <span class="nt">The fix in this post — cli-table3 #360</span><span class="nd">GitHub · diff</span>
+    </a>
+    <a href="https://greymoth-jp.github.io/cjk-failure-corpus/e/cli-table3-surrogate-truncate.html">
+      <span class="nt">This bug's corpus entry</span><span class="nd">corpus · entry</span>
+    </a>
+    <a href="https://greymoth-jp.github.io/cjk-failure-corpus/category/surrogate-emoji.html">
+      <span class="nt">The whole family — surrogate &amp; grapheme</span><span class="nd">corpus · category</span>
+    </a>
+    <a href="https://greymoth-jp.github.io/cjk-failure-corpus/">
+      <span class="nt">The corpus — 97 CJK / Unicode failures</span><span class="nd">catalog</span>
+    </a>
+    <a href="https://github.com/greymoth-jp/cjk-agent-fixtures">
+      <span class="nt">Runnable fixtures — JS + Go, MIT</span><span class="nd">repo · tests</span>
+    </a>
+  </div>
+
+  <p class="sig">Don't take my word for the diagnosis — the cli-table3 diff is public, <a href="https://github.com/cli-table/cli-table3/pull/360">read it</a> and decide if it holds.<br><br>— greymoth (<a href="https://x.com/greymoth__">@greymoth__</a>)</p>
+
+  <div class="backline">
+    <a href="https://greymoth-jp.github.io/writing/">← all writing</a>
+    <a href="https://greymoth-jp.github.io/">greymoth — the record</a>
+  </div>
+
+  <footer>
+    <span>greymoth · Tokyo, Japan</span>
+    <span>canonical · mirrored on dev.to</span>
+  </footer>
+
+</div>
+</body>
+</html>
