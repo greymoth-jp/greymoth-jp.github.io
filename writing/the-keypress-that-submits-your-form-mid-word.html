@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The keypress that submits your form mid-word. — greymoth</title>
+<meta name="description" content="A user presses Enter to pick a kanji candidate and the form submits with half-typed text. It is an input-boundary bug: the commit keypress of an IME composition is the same Enter your handler reads as submit. The one-line isComposing fix, why it is four different lines, the spec-level root cause, the sibling-input re-occurrence pattern, native and terminal cases, and a regression harness — with real merged diffs.">
+<link rel="canonical" href="https://greymoth-jp.github.io/writing/the-keypress-that-submits-your-form-mid-word.html">
+<link rel="alternate" type="application/atom+xml" title="greymoth — launches" href="https://greymoth-jp.github.io/feed.xml">
+
+<!-- Open Graph -->
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://greymoth-jp.github.io/writing/the-keypress-that-submits-your-form-mid-word.html">
+<meta property="og:title" content="The keypress that submits your form mid-word.">
+<meta property="og:description" content="The commit keypress of an IME composition is the same Enter your handler reads as submit. The one-line isComposing fix — why it is four different lines, why the platform can't cleanly signal the commit, and the same failure across React, Vue, Safari, native UI and terminals.">
+<meta property="og:image" content="https://greymoth-jp.github.io/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The keypress that submits your form mid-word.">
+<meta name="twitter:description" content="Enter commits a Japanese IME conversion and your form submits mid-word. The one-line fix, why it is four lines, the spec root cause, and the same bug in misskey, llm-x, Safari mentions and rsuite.">
+<meta name="twitter:image" content="https://greymoth-jp.github.io/og.png">
+
+<!-- Structured data — Article -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "The keypress that submits your form mid-word.",
+  "description": "The Enter that commits an IME composition is the same Enter a submit handler reads as submit, so a Japanese, Chinese or Korean user's form fires mid-word. The one-line isComposing guard, why it is four different lines across frameworks and engines, the two open W3C issues at the root, the sibling-input re-occurrence pattern, native and terminal cases, and a composition-aware regression harness — cross-linked to real merged pull requests.",
+  "author": { "@type": "Person", "name": "greymoth", "url": "https://greymoth-jp.github.io/" },
+  "publisher": { "@type": "Person", "name": "greymoth", "url": "https://greymoth-jp.github.io/" },
+  "datePublished": "2026-07-04",
+  "mainEntityOfPage": "https://greymoth-jp.github.io/writing/the-keypress-that-submits-your-form-mid-word.html",
+  "keywords": "IME, composition event, isComposing, keyCode 229, Enter key, CJK, Japanese input, React nativeEvent, WebKit, form submit, compositionstart, compositionend",
+  "isPartOf": { "@type": "Collection", "name": "CJK / Unicode Failure Corpus", "url": "https://greymoth-jp.github.io/cjk-failure-corpus/" }
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --paper:#f4f4f2;        /* cool bone white */
+    --ink:#0b0b0b;          /* near-black */
+    --soft:#3a3a38;         /* body gray */
+    --faded:#8c8c87;        /* labels */
+    --hair:#d3d3cd;         /* hairlines */
+    --ghost:#cdcdc7;        /* registration-offset gray */
+    --code:#efefec;         /* code panel skin */
+    --disp:"Archivo Black",Impact,sans-serif;
+    --mono:"Space Mono","SFMono-Regular",ui-monospace,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  html,body{overflow-x:hidden}
+  ::selection{background:var(--ink);color:var(--paper)}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--mono);
+    font-size:15px;
+    line-height:1.6;
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{
+    max-width:720px;
+    margin:0 auto;
+    padding:clamp(22px,5vw,40px) clamp(18px,5vw,30px) 72px;
+  }
+
+  /* ---- masthead ---- */
+  .masthead{
+    display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;
+    font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+    padding:9px 0;border-top:2px solid var(--ink);border-bottom:1px solid var(--ink);color:var(--ink);
+  }
+  .masthead .brand{display:flex;align-items:center;gap:9px;font-weight:700}
+  .masthead .sq{width:9px;height:9px;background:var(--ink);display:inline-block}
+  .masthead .mid{color:var(--faded);letter-spacing:.22em}
+  .masthead .ed{color:var(--faded)}
+  @media(max-width:560px){.masthead .mid{display:none}}
+  .masthead a{transition:opacity .12s ease}
+  .masthead a:hover{opacity:.55}
+
+  /* ---- article header ---- */
+  header{padding:clamp(30px,6vw,52px) 0 clamp(18px,4vw,26px)}
+  .eyebrow{
+    font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--faded);margin:0 0 18px;
+    display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+  }
+  .eyebrow .sep{color:var(--hair)}
+  h1{
+    font-family:var(--disp);font-weight:400;
+    font-size:clamp(27px,5.6vw,44px);
+    line-height:1.03;letter-spacing:-.015em;margin:0;
+    text-shadow:.035em .04em 0 var(--ghost);
+    overflow-wrap:break-word;
+  }
+  .dek{
+    font-family:var(--mono);font-size:clamp(14px,2.3vw,16px);
+    color:var(--soft);margin:22px 0 0;max-width:62ch;line-height:1.6;
+    padding-left:16px;border-left:2px solid var(--ink);
+  }
+  .dek b{color:var(--ink);font-weight:700}
+
+  /* ---- prose body ---- */
+  .body{max-width:64ch}
+  .body h2{
+    font-family:var(--disp);font-weight:400;text-transform:uppercase;
+    font-size:clamp(16px,3.8vw,22px);line-height:1.08;letter-spacing:-.01em;
+    margin:44px 0 4px;text-shadow:.03em .035em 0 var(--ghost);
+  }
+  .body h2::before{
+    content:"";display:block;width:38px;height:2px;background:var(--ink);margin:0 0 16px;
+  }
+  .body p{font-size:14.5px;color:var(--soft);margin:16px 0 0;line-height:1.68}
+  .body p b{color:var(--ink);font-weight:700}
+  .body p code,.body li code{
+    font-family:var(--mono);font-size:.88em;
+    background:var(--code);border:1px solid var(--hair);border-radius:2px;
+    padding:1px 5px;color:var(--ink);white-space:nowrap;
+  }
+  .body ul{margin:16px 0 0;padding-left:0;list-style:none}
+  .body ul li{
+    font-size:14px;color:var(--soft);line-height:1.62;margin:9px 0 0;
+    padding-left:20px;position:relative;
+  }
+  .body ul li::before{
+    content:"";position:absolute;left:2px;top:9px;width:7px;height:7px;background:var(--ink);
+  }
+  .body ul li b{color:var(--ink);font-weight:700}
+
+  /* code blocks — scroll inside their own box, never the page */
+  pre{
+    margin:20px 0 0;background:var(--code);
+    border:2px solid var(--ink);border-radius:2px;
+    padding:16px clamp(12px,3vw,18px);
+    overflow-x:auto;-webkit-overflow-scrolling:touch;
+  }
+  pre code{
+    font-family:var(--mono);font-size:13px;line-height:1.6;
+    color:var(--ink);white-space:pre;display:block;
+  }
+  pre code .cm{color:var(--faded)}
+
+  /* the guard-matrix table */
+  .tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:20px 0 0}
+  table{border-collapse:collapse;width:100%;min-width:460px;font-size:13px}
+  th,td{border:2px solid var(--ink);padding:9px 12px;text-align:left;vertical-align:top}
+  th{font-family:var(--mono);font-weight:700;text-transform:uppercase;font-size:11px;letter-spacing:.06em}
+  td:first-child{font-family:var(--mono);font-size:13px;color:var(--ink)}
+  td{color:var(--soft)}
+  td code{font-family:var(--mono);font-size:.86em;background:var(--paper);border:1px solid var(--hair);border-radius:2px;padding:1px 5px;white-space:nowrap}
+
+  .callout{
+    font-size:13px;color:var(--soft);margin:22px 0 0;max-width:64ch;
+    padding-left:16px;border-left:2px solid var(--hair);line-height:1.6;
+  }
+  .callout b{color:var(--ink);font-weight:700}
+
+  /* ---- section label ---- */
+  .label{
+    font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--ink);font-weight:700;margin:52px 0 8px;
+    display:flex;align-items:center;gap:14px;
+  }
+  .label .n{color:var(--faded);font-family:var(--disp);font-size:14px}
+  .label::after{content:"";flex:1;height:2px;background:var(--ink)}
+  .lead{font-size:13px;color:var(--soft);margin:0 0 18px;max-width:64ch;line-height:1.6}
+  .lead b{color:var(--ink);font-weight:700}
+
+  /* ---- the family cards (added depth) ---- */
+  .fam{border:2px solid var(--ink);border-top:none}
+  .fam .card{border-top:2px solid var(--ink);padding:20px clamp(14px,3.5vw,22px)}
+  .fam .fh{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+  .fam .name{
+    font-family:var(--disp);font-weight:400;text-transform:uppercase;
+    font-size:clamp(15px,3.4vw,19px);line-height:1.05;letter-spacing:-.01em;
+    text-shadow:.025em .03em 0 var(--ghost);overflow-wrap:break-word;
+  }
+  .fam .st{
+    font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;
+    border:1.5px solid var(--ink);padding:3px 8px;color:var(--ink);
+  }
+  .fam .st.open{border-style:dashed;color:var(--soft)}
+  .fam .rows{margin:15px 0 0;display:grid;gap:10px}
+  .fam .rr{display:grid;grid-template-columns:74px 1fr;gap:14px;align-items:start}
+  .fam .rk{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faded);font-weight:700;padding-top:2px}
+  .fam .rv{font-size:13px;color:var(--soft);line-height:1.55;max-width:52ch}
+  .fam .rv b{color:var(--ink);font-weight:700}
+  .fam .rv code{
+    font-family:var(--mono);font-size:.86em;background:var(--paper);
+    border:1px solid var(--hair);border-radius:2px;padding:1px 5px;white-space:nowrap;
+  }
+  .fam .links{display:flex;gap:16px;flex-wrap:wrap;margin-top:15px}
+  .fam .links a{
+    font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+    border-bottom:1.5px solid var(--ink);padding-bottom:2px;transition:opacity .12s ease;
+  }
+  .fam .links a:hover{opacity:.55}
+  @media(max-width:540px){
+    .fam .rr{grid-template-columns:1fr;gap:3px}
+    .fam .rk{padding-top:0}
+  }
+
+  /* ---- read-next / verify block ---- */
+  .next{border:2px solid var(--ink);margin-top:20px}
+  .next a{
+    display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+    padding:15px clamp(14px,3.4vw,20px);border-bottom:2px solid var(--ink);
+    transition:background .12s ease,color .12s ease;
+  }
+  .next a:last-child{border-bottom:none}
+  .next a:hover{background:var(--ink);color:var(--paper)}
+  .next .nt{font-family:var(--mono);font-weight:700;font-size:13px}
+  .next .nd{font-size:11px;color:var(--faded);letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+  .next a:hover .nd{color:#bdbdb7}
+
+  .sig{
+    font-family:var(--mono);font-size:13px;color:var(--ink);
+    margin:38px 0 0;padding-top:20px;border-top:2px solid var(--ink);
+  }
+  .sig a{border-bottom:1.5px solid var(--ink);padding-bottom:1px}
+  .sig a:hover{opacity:.55}
+
+  .backline{display:flex;gap:16px;flex-wrap:wrap;margin-top:30px}
+  .backline a{font-size:12px;color:var(--ink);border-bottom:1.5px solid var(--ink);padding-bottom:2px;transition:opacity .12s ease}
+  .backline a:hover{opacity:.55}
+
+  footer{
+    margin-top:46px;padding-top:16px;border-top:2px solid var(--ink);
+    font-size:11px;color:var(--faded);letter-spacing:.08em;text-transform:uppercase;
+    display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="masthead">
+    <span class="brand"><span class="sq"></span> <a href="https://greymoth-jp.github.io/">greymoth</a></span>
+    <span class="mid">proof, not pitch</span>
+    <span class="ed"><a href="https://greymoth-jp.github.io/writing/">Writing</a> · Nº 02</span>
+  </div>
+
+  <header>
+    <p class="eyebrow">field note <span class="sep">/</span> IME composition <span class="sep">/</span> 2026-07-04</p>
+    <h1>The keypress that submits your form mid-word.</h1>
+    <p class="dek">An <b>input-boundary failure</b>: the Enter that commits a text composition is the same Enter your handler reads as submit. So a form fires while the user is still choosing a word — send runs on half-typed text. It is universal to every input that treats Enter as submit or select. Japanese, Chinese and Korean input is just where it fires first and hardest, because those users press Enter mid-word all day.</p>
+  </header>
+
+  <div class="body">
+
+    <p>A user in Tokyo starts typing a message. They get a few kana in, the IME shows a list of kanji candidates, and they press Enter to pick the one they want. The form submits. The half-finished message is gone — sent to whoever was on the other end — and the box is empty. They never pressed send. They pressed Enter to choose a word, and the same Enter your submit handler was listening for.</p>
+
+    <p>This is the single most common way foreign software breaks for a Japanese user, and it is not a Japanese bug. It is an input-boundary bug. Any text field that treats <code>Enter</code> as "submit" or "select the highlighted item" owns it. The reason it surfaces in CJK first is mechanical: to type Japanese, Chinese or Korean you compose — you type phonetic input and press Enter to commit a conversion — so those users hit Enter mid-input constantly. An English user only presses Enter when they mean it. Same code, same keypress; one language routes a "commit" through the key you read as "done."</p>
+
+    <p>The fix is famous. Every writeup ends the same way: check <code>isComposing</code> and bail out. It is also the largest failure family in a corpus of 97 real ones I keep — <b>38 of 97, three times the size of the next</b>. A one-line fix that everyone knows, and the bug is still everywhere. That contradiction is the whole story. The four things below are why the one-liner does not stick.</p>
+
+    <h2>The fix is one line. The line is different four times.</h2>
+
+    <p>"Check <code>isComposing</code>" is not one guard. It is four, and a team that learns one of them ships the other three broken. Here is the same guard, per platform, taken from real fixes in the corpus:</p>
+
+<pre><code><span class="cm">// Vanilla DOM / Svelte — the native KeyboardEvent carries the flag directly.</span>
+input.addEventListener('keydown', (e) =&gt; {
+  if (e.isComposing) return;              <span class="cm">// chakra-ui/zag#3198 (merged)</span>
+  if (e.key === 'Enter') submit();
+});
+
+<span class="cm">// React — the SYNTHETIC event has no isComposing. Read the native one.</span>
+function onKeyDown(e) {
+  if (e.nativeEvent.isComposing) return;  <span class="cm">// mrdjohnson/llm-x#53, twentyhq/twenty#22270 (merged)</span>
+  if (e.key === 'Enter') send();
+}
+
+<span class="cm">// Safari / WebKit — reports the commit keydown as key="Enter" WITH isComposing=true,</span>
+<span class="cm">// so you must bail on isComposing before preventDefault, or WebKit eats the commit.</span>
+function onKeyDownWebKit(e) {
+  if (e.nativeEvent.isComposing) return;  <span class="cm">// react-component/mentions#325 (Safari-only)</span>
+  <span class="cm">// Chromium reports keyCode 229 here and never even enters this branch.</span>
+}
+
+<span class="cm">// Belt-and-suspenders — some engines only expose keyCode 229,</span>
+<span class="cm">// and some fire key === 'Process' instead of exposing isComposing.</span>
+function onKeyDownRobust(e) {
+  if (e.isComposing || e.keyCode === 229 || e.key === 'Process') return;  <span class="cm">// misskey-dev/misskey#17646 (merged)</span>
+  if (e.key === 'Enter') act();
+}</code></pre>
+
+    <p>A React developer who "knows the fix" writes <code>if (e.isComposing) return</code>, reads <code>undefined</code> off the synthetic event, guards nothing, and ships. A Chrome-only team never meets the Safari variant, because Chromium routes the commit through <code>keyCode 229</code> and their <code>Enter</code> branch is never reached. None of this is carelessness. The correct guard depends on the framework's event model <b>and</b> the browser engine, and no single line is right in all four columns.</p>
+
+    <h2>Why even careful teams get this wrong: the platform can't tell you either</h2>
+
+    <p>The reason this survives good code review is that the web platform gives you no clean signal for "this is the keypress that commits the composition." Two open standards issues, both in the corpus, say so directly:</p>
+
+    <ul>
+      <li><b><code>w3c/uievents#202</code></b> — the spec orders the <code>input</code> event before <code>compositionend</code>; Chrome and Safari follow it, Firefox and Edge fire <code>input</code> <b>after</b> <code>compositionend</code>. Any guard built on event <b>ordering</b> behaves differently per browser.</li>
+      <li><b><code>w3c/input-events#176</code></b> — every <code>input</code> event during a composition, including the one that commits it, carries <code>isComposing = true</code> and <code>inputType = "insertCompositionText"</code>. No property isolates the commit. You cannot detect "the composition just finished" from the input event alone; you also have to listen for <code>compositionend</code>.</li>
+    </ul>
+
+    <p>That is the real story for a platform, framework or foundation-model team: the correct fix is a coordination between three events — <code>compositionstart</code>, <code>keydown</code>, <code>compositionend</code> — that the spec under-defines, so every component re-derives it and a fraction re-derive it wrong. The one-liner is the symptom. The missing platform primitive is the disease.</p>
+
+    <h2>The re-occurrence pattern: the main box is guarded, the sibling isn't</h2>
+
+    <p>The corpus shows the bug rarely appears in a codebase that has never heard of it. It appears in codebases that <b>fixed the main composer</b> and left every sibling input undefended. The chat box guards <code>isComposing</code>; the inline rename next to it does not. Real examples, grouped by the input that was missed:</p>
+
+    <ul>
+      <li><b>Inline rename fields</b> — <code>siyuan-note/siyuan#17988</code> (merged), <code>CherryHQ/cherry-studio#16582</code>, <code>langflow-ai/langflow#13887</code>, <code>janhq/jan#8359</code>.</li>
+      <li><b>Tag / label inputs</b> — <code>langgenius/dify#38119</code>, <code>danny-avila/LibreChat#13996</code>, <code>tusen-ai/naive-ui#8115</code> (merged).</li>
+      <li><b>Search and command inputs</b> — <code>payloadcms/payload#17138</code> (merged), <code>deta/surf#184</code>, <code>excalidraw/excalidraw#11573</code>.</li>
+    </ul>
+
+    <p>If you are auditing your own app, do not stop at the chat box. Grep every <code>key === 'Enter'</code> and every <code>keyCode === 13</code> handler, and confirm each one has the guard. The commit keypress reaches all of them, not just the one you already fixed.</p>
+
+    <h2>It is not a browser bug — the same failure lands in native UI and terminals</h2>
+
+    <p>Three corpus entries put the bug outside the browser entirely, which is why this is filed under <b>input boundaries</b> and not <b>web</b>:</p>
+
+    <ul>
+      <li><b><code>dotnet/maui#36179</code></b> — on Windows, <code>Entry.Completed</code> fires when the user presses Enter <b>inside the IME candidate window</b>, so completion runs before the conversion commits. Same bug, XAML instead of the DOM.</li>
+      <li><b><code>warpdotdev/warp#320</code></b> — the terminal doesn't render IME marked (preedit) text at all, so the user composes blind. The input boundary isn't just mishandled here, it's invisible.</li>
+      <li><b><code>zed-industries/zed#59193</code></b> — text jumps vertically while composing with a Chinese IME on Windows; the marked-text region isn't held on a stable baseline.</li>
+    </ul>
+
+    <p>Any product with a text field owns this, whether the field is HTML, XAML, or a raw terminal grid.</p>
+
+    <h2>Make it fail the build: a composition-aware regression test</h2>
+
+    <p>You cannot catch this by typing ASCII — an English keypress never sets <code>isComposing</code>. The test has to synthesize the composition lifecycle. This harness drives a DOM input through <code>compositionstart</code> → <code>keydown(Enter, isComposing:true)</code> → <code>compositionend</code> and asserts the submit handler never fired on the commit key:</p>
+
+<pre><code><span class="cm">// vitest / jsdom. The point is the isComposing:true keydown between start and end.</span>
+import { fireEvent } from '@testing-library/dom';
+
+function typeAndCommit(input) {
+  fireEvent.compositionStart(input);
+  fireEvent.compositionUpdate(input, { data: 'にほんご' });
+  <span class="cm">// The commit keypress. WebKit-shaped: Enter carrying isComposing.</span>
+  fireEvent.keyDown(input, { key: 'Enter', keyCode: 229, isComposing: true });
+  fireEvent.compositionEnd(input, { data: '日本語' });
+}
+
+test('the Enter that commits an IME composition does not submit', () =&gt; {
+  const onSubmit = vi.fn();
+  const input = mountInputWithSubmit(onSubmit);
+  typeAndCommit(input);
+  expect(onSubmit).not.toHaveBeenCalled();       <span class="cm">// must stay quiet on the commit Enter</span>
+
+  <span class="cm">// And a real, post-composition Enter still submits:</span>
+  fireEvent.keyDown(input, { key: 'Enter', keyCode: 13, isComposing: false });
+  expect(onSubmit).toHaveBeenCalledTimes(1);
+});</code></pre>
+
+    <p>The second assertion matters as much as the first. The guard has to let the <b>next</b> Enter through, or you have traded a false submit for a dead submit button — which is how a careless fix regresses into a second bug report a week later.</p>
+
+    <h2>The check, for the next one</h2>
+
+    <p>The one-line habit is worth stating plainly, because the whole failure is a mismatch between two questions that feel identical and aren't:</p>
+
+    <div class="tbl-scroll">
+    <table>
+      <thead>
+        <tr><th>the key you saw</th><th>what the user meant</th><th>the signal that separates them</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Enter, ASCII typing</td><td>submit / select</td><td><code>isComposing</code> is false — act</td></tr>
+        <tr><td>Enter, mid-composition</td><td>commit a candidate</td><td><code>isComposing</code> true, or <code>keyCode 229</code>, or <code>key === 'Process'</code> — skip</td></tr>
+        <tr><td>Enter, React synthetic</td><td>either</td><td>flag lives on <code>e.nativeEvent</code>, not <code>e</code></td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <p>So the check is: before any <code>Enter</code> handler acts, ask whether a composition is active, and ask it against the object that actually carries the flag on your stack. If you are in React, that object is <code>nativeEvent</code>. If you support Safari, bail before <code>preventDefault</code>. If you want to be safe across engines, accept <code>keyCode 229</code> and <code>key === 'Process'</code> as composition too. Then write the test above, because ASCII will never show you this — you have to hand the handler the keypress it is quietly afraid of.</p>
+
+    <p>This is one family in a corpus of 97 real CJK, IME and Unicode failures I have been collecting, most of them one-line fixes hiding in software that works perfectly in English. This family is the biggest — 38 entries. Below, unlike the short version of this post, I've pulled a few out of the corpus in full so you can watch the same keypress break three frameworks and two rendering engines, and check every diagnosis against a diff.</p>
+
+  </div>
+
+  <!-- ADDED DEPTH — not in the dev.to version -->
+  <p class="label"><span class="n">+</span> The same keypress, four more frameworks</p>
+  <p class="lead">The guard matrix above is abstract until you see it fail in real code. These four all sit in the same corpus category — <b>IME composition</b> — and they are deliberately spread across the event models: a Vue composer, a React chat, a React component that only breaks in Safari, and a select-box whose symptom isn't submit at all but <b>picking the wrong item</b>. Two merged, one open, one closed. I keep the closed one in the record because the diagnosis stands whether or not the maintainer took the diff — and because it is the clearest proof that the guard depends on the engine, not the developer.</p>
+
+  <div class="fam">
+
+    <div class="card">
+      <div class="fh">
+        <span class="name">misskey — send on the commit Enter</span>
+        <span class="st">merged · PR #17646</span>
+      </div>
+      <div class="rows">
+        <div class="rr"><span class="rk">Shape</span><span class="rv">The canonical case, in Vue. The chat composer's <code>onKeydown</code> called <code>send()</code> with no composition check, so confirming a Japanese conversion counted as submit.</span></div>
+        <div class="rr"><span class="rk">Breaks</span><span class="rv">Type a few kana, press Enter to pick the kanji, and the in-progress text sends and the box clears. Every reply a Japanese user tries to write leaves early.</span></div>
+        <div class="rr"><span class="rk">Fix</span><span class="rv">Guard the belt-and-suspenders way: skip while <code>isComposing || key === 'Process' || keyCode === 229</code>, covering every engine's shape of the commit key.</span></div>
+      </div>
+      <div class="links">
+        <a href="https://github.com/misskey-dev/misskey/pull/17646">the diff on GitHub ↗</a>
+        <a href="https://greymoth-jp.github.io/cjk-failure-corpus/e/misskey-chat-enter-ime.html">corpus entry ↗</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="fh">
+        <span class="name">llm-x — React's missing flag</span>
+        <span class="st open">open · PR #53</span>
+      </div>
+      <div class="rows">
+        <div class="rr"><span class="rk">Shape</span><span class="rv">The React trap in one line. Send-on-Enter checked the synthetic event, where <code>isComposing</code> does not exist, so the guard silently read <code>undefined</code> and did nothing.</span></div>
+        <div class="rr"><span class="rk">Breaks</span><span class="rv">The candidate-confirm Enter sends the half-composed prompt. The developer may have written a guard and still shipped the bug, because they guarded the wrong object.</span></div>
+        <div class="rr"><span class="rk">Fix</span><span class="rv">Read <code>e.nativeEvent.isComposing</code>. React's synthetic <code>KeyboardEvent</code> doesn't forward the flag; the underlying DOM event does.</span></div>
+      </div>
+      <div class="links">
+        <a href="https://github.com/mrdjohnson/llm-x/pull/53">the diff on GitHub ↗</a>
+        <a href="https://greymoth-jp.github.io/cjk-failure-corpus/e/llm-x-chat-enter-ime.html">corpus entry ↗</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="fh">
+        <span class="name">rc-mentions — only wrong in Safari</span>
+        <span class="st">closed · PR #325</span>
+      </div>
+      <div class="rows">
+        <div class="rr"><span class="rk">Shape</span><span class="rv">Proof the guard depends on the engine. Confirming a CJK @-mention with Enter selects the highlighted mention <b>only in WebKit</b>, because Safari reports the commit keydown as <code>key === 'Enter'</code> with <code>isComposing:true</code>.</span></div>
+        <div class="rr"><span class="rk">Breaks</span><span class="rv">A Chrome-only team can never reproduce it: Chromium routes the same commit through <code>keyCode 229</code>, so the <code>Enter</code> branch never runs and the bug is Safari-exclusive.</span></div>
+        <div class="rr"><span class="rk">Fix</span><span class="rv">Bail on <code>nativeEvent.isComposing</code> before acting. Closed upstream, kept here for the record — the engine-split diagnosis holds regardless.</span></div>
+      </div>
+      <div class="links">
+        <a href="https://github.com/react-component/mentions/pull/325">the diff on GitHub ↗</a>
+        <a href="https://greymoth-jp.github.io/cjk-failure-corpus/e/rc-mentions-safari-ime-select.html">corpus entry ↗</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="fh">
+        <span class="name">rsuite — select, not submit</span>
+        <span class="st">merged · PR #4585</span>
+      </div>
+      <div class="rows">
+        <div class="rr"><span class="rk">Shape</span><span class="rv">The same keypress, a different verb. rsuite's <code>InputPicker</code> treats Enter as "choose the highlighted option," so the commit Enter didn't submit a form — it picked a dropdown item.</span></div>
+        <div class="rr"><span class="rk">Breaks</span><span class="rv">Filter the list by typing Japanese, press Enter to commit the conversion, and the widget selects whatever option happened to be highlighted instead of accepting your text.</span></div>
+        <div class="rr"><span class="rk">Fix</span><span class="rv">Same guard, applied to the select path: ignore Enter while the composition is active, so commit and select stop sharing a keypress.</span></div>
+      </div>
+      <div class="links">
+        <a href="https://github.com/rsuite/rsuite/pull/4585">the diff on GitHub ↗</a>
+        <a href="https://greymoth-jp.github.io/cjk-failure-corpus/e/rsuite-inputpicker-ime.html">corpus entry ↗</a>
+      </div>
+    </div>
+
+  </div>
+
+  <p class="callout">Read them in a row and the family resolves: <b>one keypress carries two meanings, and the code read the wrong one.</b> misskey read commit as submit; llm-x checked the object that doesn't carry the flag; rc-mentions was correct everywhere except the one engine that shapes the key differently; rsuite read commit as select. Same under-specified boundary — the platform never told any of them which Enter this was — wearing four different costumes across Vue, React, WebKit and a select widget. Grouping by the broken assumption instead of the symptom is what tells you the next place it hides: not the chat box you already fixed, but the field beside it.</p>
+
+  <p class="label"><span class="n">→</span> Read next / verify</p>
+  <div class="next">
+    <a href="https://github.com/misskey-dev/misskey/pull/17646">
+      <span class="nt">A merged fix I keep pointing to — misskey #17646</span><span class="nd">GitHub · diff</span>
+    </a>
+    <a href="https://greymoth-jp.github.io/cjk-failure-corpus/e/misskey-chat-enter-ime.html">
+      <span class="nt">That bug's corpus entry</span><span class="nd">corpus · entry</span>
+    </a>
+    <a href="https://greymoth-jp.github.io/cjk-failure-corpus/category/ime-composition.html">
+      <span class="nt">The whole family — IME composition, 38 entries</span><span class="nd">corpus · category</span>
+    </a>
+    <a href="https://greymoth-jp.github.io/cjk-failure-corpus/">
+      <span class="nt">The corpus — 97 CJK / Unicode failures</span><span class="nd">catalog</span>
+    </a>
+    <a href="https://github.com/greymoth-jp/cjk-agent-fixtures">
+      <span class="nt">Runnable fixtures — JS + Go, MIT</span><span class="nd">repo · tests</span>
+    </a>
+  </div>
+
+  <p class="sig">Don't take my word for the diagnosis — the misskey diff is public, <a href="https://github.com/misskey-dev/misskey/pull/17646">read it</a> and decide if the guard holds.<br><br>— greymoth (<a href="https://x.com/greymoth__">@greymoth__</a>)</p>
+
+  <div class="backline">
+    <a href="https://greymoth-jp.github.io/writing/">← all writing</a>
+    <a href="https://greymoth-jp.github.io/">greymoth — the record</a>
+  </div>
+
+  <footer>
+    <span>greymoth · Tokyo, Japan</span>
+    <span>canonical · mirrored on dev.to</span>
+  </footer>
+
+</div>
+</body>
+</html>
