@@ -1,0 +1,31 @@
+name: refresh-stats
+# Keeps the homepage impact-map numbers true against the GitHub API.
+on:
+  schedule:
+    - cron: '17 6 * * *'   # daily ~06:17 UTC
+  workflow_dispatch: {}
+permissions:
+  contents: write
+concurrency:
+  group: refresh-stats
+  cancel-in-progress: false
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Refresh impact-map numbers
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/refresh-stats.mjs
+      - name: Commit if changed
+        run: |
+          if [ -n "$(git status --porcelain index.html)" ]; then
+            git config user.name  "greymoth-jp"
+            git config user.email "246701683+greymoth-jp@users.noreply.github.com"
+            git add index.html
+            git commit -m "chore: refresh impact-map numbers from GitHub API"
+            git push
+          else
+            echo "no change"
+          fi

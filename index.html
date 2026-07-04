@@ -71,7 +71,7 @@
     {
       "@type": "Question",
       "name": "Is greymoth's work verifiable?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Yes. Every claim links to a third party — GitHub or the Apple App Store — that you can check yourself. The proof dashboard reads the merged and open pull requests live from the GitHub API; nothing is hand-typed. Merged and in-review counts are kept separate and honest." }
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. Every claim links to a third party — GitHub or the Apple App Store — that you can check yourself. The impact-map counts are refreshed from the GitHub API on a daily schedule, and merged and in-review counts are kept separate and honest." }
     }
   ]
 }
@@ -444,14 +444,14 @@
   <!-- LAYER 2 — IMPACT MAP -->
   <p class="label"><span class="n">01</span> Impact map</p>
   <div class="map" role="list" aria-label="Impact map">
-    <div class="cell" role="listitem"><div class="big">115</div><div class="cap">pull requests<br>merged</div></div>
-    <div class="cell" role="listitem"><div class="big">107</div><div class="cap">named OSS<br>projects</div></div>
-    <div class="cell" role="listitem"><div class="big">144</div><div class="cap">more PRs<br>in review</div></div>
+    <div class="cell" role="listitem"><div class="big"><!--S:merged-->115<!--/S--></div><div class="cap">pull requests<br>merged</div></div>
+    <div class="cell" role="listitem"><div class="big"><!--S:repos-->107<!--/S--></div><div class="cap">named OSS<br>projects</div></div>
+    <div class="cell" role="listitem"><div class="big"><!--S:open-->144<!--/S--></div><div class="cap">more PRs<br>in review</div></div>
     <div class="cell" role="listitem"><div class="big">40</div><div class="cap">tools scanned<br>for Japan-readiness</div></div>
     <div class="cell" role="listitem"><div class="big">2</div><div class="cap">public datasets<br>CC-BY-4.0</div></div>
     <div class="cell" role="listitem"><div class="big">1</div><div class="cap">iOS app<br>on the App Store</div></div>
   </div>
-  <p class="note">Merged and in-review are kept separate on purpose. <b>115 are merged</b> — a maintainer accepted the code. About <b>144 more are open</b> and still in review; some of those will be rejected — around 90 already have been — and the dashboard shows that too. I'd rather show a verifiable small thing than claim a big one.</p>
+  <p class="note">Merged and in-review are kept separate on purpose. <b><!--S:merged-->115<!--/S--> are merged</b> — a maintainer accepted the code. About <b><!--S:open-->144<!--/S--> more are open</b> and still in review; some of those will be rejected — around <!--S:rejected-->90<!--/S--> already have been — and the dashboard shows that too. I'd rather show a verifiable small thing than claim a big one.</p>
   <div class="more" style="margin-top:12px">
     <a href="https://greymoth-jp.github.io/cjk-failure-corpus/">browse the failure corpus behind the fixes ↗</a>
   </div>
@@ -635,7 +635,7 @@
     </div>
     <div class="ev">
       <div class="d">2026-07-05 · now</div>
-      <div class="t"><b>115 merged across 107 projects, 144 in review</b> — and about 90 more closed without merging, counted on purpose, not hidden. These numbers are checked by hand against the GitHub API, not auto-scraped, so they lag reality by a little.</div>
+      <div class="t"><b><!--S:merged-->115<!--/S--> merged across <!--S:repos-->107<!--/S--> projects, <!--S:open-->144<!--/S--> in review</b> — and about <!--S:rejected-->90<!--/S--> more closed without merging, counted on purpose, not hidden. Counts refreshed daily from the GitHub API — last changed <!--S:date-->2026-07-05<!--/S-->.</div>
     </div>
   </div>
   <p class="note">I'm not going to dress two weeks up as five years. This is an <b>early, intense record</b>, and I present it as exactly that: live, click-through-verifiable, and growing — not a finished career.</p>
