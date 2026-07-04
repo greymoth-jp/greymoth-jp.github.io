@@ -577,12 +577,12 @@
 
   <!-- LAYER 4.5 — FIELD GUIDE (knowledge: the merges, classified + written up) -->
   <p class="label"><span class="n">04</span> The field guide</p>
-  <p class="note" style="margin-top:0;margin-bottom:18px">Twenty-four merges, but not twenty-four unrelated bugs. Read enough of them and they collapse into <b>three kinds of wrong assumption</b> a system makes about text and jurisdiction: the same shapes, repeating across codebases. I wrote it down as a public taxonomy, with a runnable test behind every row.</p>
+  <p class="note" style="margin-top:0;margin-bottom:18px">These aren't unrelated bugs. Read enough of them and they collapse into <b>three kinds of wrong assumption</b> a system makes about text and jurisdiction: the same shapes, repeating across codebases. I wrote it down as a public taxonomy, with a runnable test behind every row.</p>
   <div class="guide" role="list" aria-label="Localization-friction taxonomy">
     <div class="gcell" role="listitem">
       <div class="gtype">Format<br>mismatch</div>
       <div class="gline">Assumes one character is one byte and one column. Then text is cut mid-kanji, the cursor lands wrong, and two equal strings compare unequal.</div>
-      <div class="gtag">3 fixtures · CJK · RTL · combining marks</div>
+      <div class="gtag">6 fixtures · CJK · RTL · combining marks</div>
     </div>
     <div class="gcell" role="listitem">
       <div class="gtype">Legal /<br>schema</div>
@@ -592,10 +592,10 @@
     <div class="gcell" role="listitem">
       <div class="gtype">Cultural /<br>UX</div>
       <div class="gline">Assumes every keystroke commits and text flows left to right. Then the IME-confirm Enter is read as submit, and composition is dropped on focus change.</div>
-      <div class="gtag">4 fixtures · IME · bidi</div>
+      <div class="gtag">5 fixtures · IME · bidi</div>
     </div>
   </div>
-  <p class="note">Seven runnable cases live in <b>cjk-agent-fixtures</b> (JS + Go, MIT). Grouping by the broken assumption, not the symptom, tells you the order to fix things and where the next one shows up.</p>
+  <p class="note">Eleven runnable cases live in <b>cjk-agent-fixtures</b> (JS + Go, MIT). Grouping by the broken assumption, not the symptom, tells you the order to fix things and where the next one shows up.</p>
   <div class="more" style="margin-top:14px">
     <a href="https://github.com/greymoth-jp/cjk-agent-fixtures/blob/main/TAXONOMY.md">read the full taxonomy ↗</a>
     <a href="https://github.com/greymoth-jp/cjk-agent-fixtures/blob/main/taxonomy.json">taxonomy.json ↗</a>
