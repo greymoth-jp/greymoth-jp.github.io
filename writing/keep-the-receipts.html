@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Output is cheap now. Keep the receipts. — greymoth</title>
+<meta name="description" content="Once anyone can generate a plausible decision memo in seconds, the artifact stops being proof of anything. A pre-launch note on Glovrex, a tamper-evident decision log that keeps the trail to a call instead of running detectors on the finished text. Proof of process, not proof of human — stated as the limit, up front.">
+<link rel="canonical" href="https://greymoth-jp.github.io/writing/keep-the-receipts.html">
+<link rel="alternate" type="application/atom+xml" title="greymoth — launches" href="https://greymoth-jp.github.io/feed.xml">
+
+<!-- Open Graph -->
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://greymoth-jp.github.io/writing/keep-the-receipts.html">
+<meta property="og:title" content="Output is cheap now. Keep the receipts.">
+<meta property="og:description" content="When anyone can generate the answer, the trail to it becomes the asset. A pre-launch note on keeping provenance for decisions, instead of running detectors on text.">
+<meta property="og:image" content="https://greymoth-jp.github.io/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Output is cheap now. Keep the receipts.">
+<meta name="twitter:description" content="The artifact stopped being proof of anything the moment anyone could generate one. What's still scarce is the trail to a decision. A pre-launch note on the layer I'm building for that trail.">
+<meta name="twitter:image" content="https://greymoth-jp.github.io/og.png">
+
+<!-- Structured data — Article -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Output is cheap now. Keep the receipts.",
+  "description": "Once anyone can generate a plausible decision memo in seconds, the artifact stops being proof of anything. A pre-launch note on Glovrex, a tamper-evident decision log that keeps the trail to a call instead of running detectors on the finished text. Proof of process, not proof of human — stated as the limit, up front.",
+  "author": { "@type": "Person", "name": "greymoth", "url": "https://greymoth-jp.github.io/" },
+  "publisher": { "@type": "Person", "name": "greymoth", "url": "https://greymoth-jp.github.io/" },
+  "datePublished": "2026-07-10",
+  "mainEntityOfPage": "https://greymoth-jp.github.io/writing/keep-the-receipts.html",
+  "keywords": "provenance, decision log, tamper-evident, build in public, pre-launch, Glovrex, AI detectors, proof of process"
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --paper:#f4f4f2;        /* cool bone white */
+    --ink:#0b0b0b;          /* near-black */
+    --soft:#3a3a38;         /* body gray */
+    --faded:#8c8c87;        /* labels */
+    --hair:#d3d3cd;         /* hairlines */
+    --ghost:#cdcdc7;        /* registration-offset gray */
+    --code:#efefec;         /* code panel skin */
+    --disp:"Archivo Black",Impact,sans-serif;
+    --mono:"Space Mono","SFMono-Regular",ui-monospace,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  html,body{overflow-x:hidden}
+  ::selection{background:var(--ink);color:var(--paper)}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--mono);
+    font-size:15px;
+    line-height:1.6;
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{
+    max-width:720px;
+    margin:0 auto;
+    padding:clamp(22px,5vw,40px) clamp(18px,5vw,30px) 72px;
+  }
+
+  /* ---- masthead ---- */
+  .masthead{
+    display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;
+    font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+    padding:9px 0;border-top:2px solid var(--ink);border-bottom:1px solid var(--ink);color:var(--ink);
+  }
+  .masthead .brand{display:flex;align-items:center;gap:9px;font-weight:700}
+  .masthead .sq{width:9px;height:9px;background:var(--ink);display:inline-block}
+  .masthead .mid{color:var(--faded);letter-spacing:.22em}
+  .masthead .ed{color:var(--faded)}
+  @media(max-width:560px){.masthead .mid{display:none}}
+  .masthead a{transition:opacity .12s ease}
+  .masthead a:hover{opacity:.55}
+
+  /* ---- article header ---- */
+  header{padding:clamp(30px,6vw,52px) 0 clamp(18px,4vw,26px)}
+  .eyebrow{
+    font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--faded);margin:0 0 18px;
+    display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+  }
+  .eyebrow .sep{color:var(--hair)}
+  h1{
+    font-family:var(--disp);font-weight:400;
+    font-size:clamp(27px,5.6vw,44px);
+    line-height:1.03;letter-spacing:-.015em;margin:0;
+    text-shadow:.035em .04em 0 var(--ghost);
+    overflow-wrap:break-word;
+  }
+  .dek{
+    font-family:var(--mono);font-size:clamp(14px,2.3vw,16px);
+    color:var(--soft);margin:22px 0 0;max-width:62ch;line-height:1.6;
+    padding-left:16px;border-left:2px solid var(--ink);
+  }
+  .dek b{color:var(--ink);font-weight:700}
+
+  /* ---- prose body ---- */
+  .body{max-width:64ch}
+  .body h2{
+    font-family:var(--disp);font-weight:400;text-transform:uppercase;
+    font-size:clamp(16px,3.8vw,22px);line-height:1.08;letter-spacing:-.01em;
+    margin:44px 0 4px;text-shadow:.03em .035em 0 var(--ghost);
+  }
+  .body h2::before{
+    content:"";display:block;width:38px;height:2px;background:var(--ink);margin:0 0 16px;
+  }
+  .body p{font-size:14.5px;color:var(--soft);margin:16px 0 0;line-height:1.68}
+  .body p b{color:var(--ink);font-weight:700}
+  .body p a{border-bottom:1.5px solid var(--ink);color:var(--ink);transition:opacity .12s ease}
+  .body p a:hover{opacity:.55}
+
+  .sig{
+    font-family:var(--mono);font-size:13px;color:var(--ink);
+    margin:38px 0 0;padding-top:20px;border-top:2px solid var(--ink);
+  }
+  .sig a{border-bottom:1.5px solid var(--ink);padding-bottom:1px}
+  .sig a:hover{opacity:.55}
+
+  .backline{display:flex;gap:16px;flex-wrap:wrap;margin-top:30px}
+  .backline a{font-size:12px;color:var(--ink);border-bottom:1.5px solid var(--ink);padding-bottom:2px;transition:opacity .12s ease}
+  .backline a:hover{opacity:.55}
+
+  footer{
+    margin-top:46px;padding-top:16px;border-top:2px solid var(--ink);
+    font-size:11px;color:var(--faded);letter-spacing:.08em;text-transform:uppercase;
+    display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="masthead">
+    <span class="brand"><span class="sq"></span> <a href="https://greymoth-jp.github.io/">greymoth</a></span>
+    <span class="mid">proof, not pitch</span>
+    <span class="ed"><a href="https://greymoth-jp.github.io/writing/">Writing</a> · Nº 03</span>
+  </div>
+
+  <header>
+    <p class="eyebrow">field note <span class="sep">/</span> pre-launch thesis <span class="sep">/</span> 2026-07-10</p>
+    <h1>Output is cheap now. Keep the receipts.</h1>
+    <p class="dek">A pre-launch note on what's actually scarce once anyone can generate the answer: not the answer, the trail to it. Caveat first, because it's load-bearing — this proves a <b>process</b> ran, not that a human did the thinking.</p>
+  </header>
+
+  <div class="body">
+
+    <p>Caveat first, because most posts like this bury it and I'd rather lead with the part that's actually honest. What I'm building can prove a process happened. It cannot prove a human did the thinking. If you automate the steps, or paste an LLM's answer through them, the record still fills up. So this is not "proof of human." It's proof of process. If that distinction doesn't matter to you, you can close the tab now and we're still friends.</p>
+
+    <p>Here's the thing that's been bugging me for months.</p>
+
+    <p>A year ago, if someone handed you a tight decision memo — three options weighed, one picked, the reasons written down — the artifact itself was evidence. Producing it cost judgment and time, so having it meant someone spent both. That link is gone. Anyone can generate a plausible version of that memo, or a clean PR description, or a crisp design doc, in about nine seconds. The output stopped being proof of anything.</p>
+
+    <p>So what's actually scarce now? Not the answer. The trail to it. What you decided, what you rejected, when, and what happened after reality pushed back on the call. That part AI can't hand you, because it doesn't have your context, your constraints, or your consequences. The decision-to-outcome loop is yours. The problem is almost nobody records it, so it evaporates. You end up with the polished final thing and no memory of the reasoning that got you there.</p>
+
+    <h2>Why this got urgent</h2>
+
+    <p>We're drowning in plausible output, and we're starting not to trust any of it. Reviewers can't tell what a person reasoned through from what got autocompleted. The main response so far has been detectors, which are a losing arms race — every detector gets beaten, and worse, they flag careful human writing as fake. I think the more honest move isn't to detect the fake. It's to let the real work keep a receipt.</p>
+
+    <h2>What I'm building</h2>
+
+    <p>Working name Glovrex. The short version: you record decisions as you make them. What you chose, the options you killed, the reason. Then it links each decision to what actually happened later — the outcome, not just the intention. The record is tamper-evident, so you can't quietly backdate a call to look smart after the fact, and neither can anyone reading it.</p>
+
+    <p>What comes out the other end is a portable log. "On this date I decided X over Y and Z, for these reasons, and here's how it aged." A receipt for your own judgment. It's useful to you, because your past self is a stranger and this is how you audit whether your reasoning was any good or you just got lucky. And it's useful to show other people, because a track record beats the polished final artifact that everyone has learned to distrust. The version of this I already trust most is boring: a <a href="https://github.com/greymoth-jp">GitHub profile full of other people's merged PRs</a>. Nobody can generate that one for you.</p>
+
+    <p>That's the visible value. I'm going to stay quiet on how it decides what to keep and surface. That's the part I'm still building and the part that's mine.</p>
+
+    <h2>The honest limit</h2>
+
+    <p>Back to the caveat, because it's load-bearing. Provenance proves the process ran: these steps, at these times, in this order, unaltered since. It does not prove the quality or the humanity of the thinking inside. Recording a decision doesn't make it a good decision. And a determined faker can perform the whole ritual with a bot.</p>
+
+    <p>What tamper-evidence actually buys you is narrower and more real: the record can't be silently rewritten later. The timeline is honest even when the thinking wasn't. That's a much smaller claim than "verified human work," and I'd rather ship the smaller true claim than the bigger false one. If I ever start selling this as proof a human did the cognitive labor, call me on it.</p>
+
+    <p>One more thing worth saying plainly. This sits on top of LLMs, not against them. I use them all day. The point isn't "AI bad." It's that when generation is free, the generated thing carries less information, and the trail around it carries more. Glovrex is a layer for the trail.</p>
+
+    <h2>Where this is</h2>
+
+    <p>Pre-launch. No signup wall to shove at you, nothing "revolutionary," no metrics I haven't earned. I'm writing this partly to think out loud and partly to find the people who already feel the problem — engineers, researchers, anyone whose real value is their judgment over time, watching that judgment get harder to prove as the output around it turns to noise.</p>
+
+    <p>If that's you, here's the disagreement I actually want: where does "proof of process" stop being useful and start being theater? That's the question I don't have fully answered yet, and it's the one that decides whether this is worth building.</p>
+
+  </div>
+
+  <p class="sig">The open question above is the real one — where "proof of process" stops being useful and turns into theater. I don't have it fully answered. If you have a take, that's the disagreement I want.<br><br>— greymoth (<a href="https://x.com/greymoth__">@greymoth__</a>)</p>
+
+  <div class="backline">
+    <a href="https://greymoth-jp.github.io/writing/">← all writing</a>
+    <a href="https://greymoth-jp.github.io/">greymoth — the record</a>
+  </div>
+
+  <footer>
+    <span>greymoth · Tokyo, Japan</span>
+    <span>canonical · mirrored on dev.to</span>
+  </footer>
+
+</div>
+</body>
+</html>
