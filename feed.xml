@@ -21,22 +21,4 @@
     <summary>A live record of pull requests opened into real projects — merged and open, read straight from the GitHub API so it can't be faked and only grows.</summary>
   </entry>
 
-  <entry>
-    <title>Japan-Readiness Index — 40 foreign dev tools scored</title>
-    <id>https://greymoth-jp.github.io/japan-readiness-index/</id>
-    <link href="https://greymoth-jp.github.io/japan-readiness-index/" rel="alternate" type="text/html"/>
-    <updated>2026-06-25T08:40:00Z</updated>
-    <published>2026-06-23T13:00:00Z</published>
-    <summary>40 foreign dev tools scored on Japanese-market readiness. None had a 特商法 commerce page; the average was 5.6 / 100. Methodology and per-tool breakdown on the page.</summary>
-  </entry>
-
-  <entry>
-    <title>Builder Archive — 128 things built, most died</title>
-    <id>https://greymoth-jp.github.io/builder-archive/</id>
-    <link href="https://greymoth-jp.github.io/builder-archive/" rel="alternate" type="text/html"/>
-    <updated>2026-06-22T17:51:00Z</updated>
-    <published>2026-06-22T17:51:00Z</published>
-    <summary>A specimen archive of 128 builds — kept as a dissected record rather than a highlight reel, because the failures are the point.</summary>
-  </entry>
-
 </feed>

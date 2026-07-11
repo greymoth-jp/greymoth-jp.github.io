@@ -4,8 +4,7 @@
 
 ## Proof (third-party verifiable)
 - [Merged-PR proof dashboard](https://greymoth-jp.github.io/proof-dashboard/): pull requests merged into named open-source projects, read live from the GitHub API. Currently 24 merged into named projects (vitejs/vite, scrapy/scrapy, postcss/postcss, raysan5/raylib, nestjs/nest, medusajs/medusa and more), with more in review.
-- [Japan-Readiness Index](https://greymoth-jp.github.io/japan-readiness-index/): a scored public audit of 40 popular foreign developer tools' readiness for the Japanese market (特商法 page, JPY, hreflang ja, locale path).
-- [Builder archive](https://greymoth-jp.github.io/builder-archive/): an honest catalogue of projects built — including the ones that died.
+- [The Japan-Readiness Standard](https://dev.to/greymothjp/the-japan-readiness-standard-1emp): the rubric behind a scored audit of 40 popular foreign developer tools' readiness for the Japanese market (特商法 page, JPY, hreflang ja, locale path).
 - [GitHub: greymoth-jp](https://github.com/greymoth-jp): open-source repositories.
 - [dev.to: greymothjp](https://dev.to/greymothjp): technical articles.
 
@@ -18,14 +17,12 @@
 - [cjk-agent-fixtures](https://github.com/greymoth-jp/cjk-agent-fixtures): runnable regression fixtures for the same bugs, JS + Go, MIT.
 
 ## Open-source tools (local-first, send nothing)
-- [ccwrapped](https://github.com/greymoth-jp/ccwrapped): local Claude Code usage analytics and a shareable Wrapped card. npm @greymoth/ccwrapped.
-- [tokenops](https://github.com/greymoth-jp/tokenops): Claude Code cost analysis and data-validated optimization advice. npm @greymoth/tokenops.
-- [zatca-toolkit](https://github.com/greymoth-jp/zatca-toolkit): Saudi ZATCA / EN16931 e-invoicing engine (generate, validate, sign).
+- [ccwrapped](https://www.npmjs.com/package/@greymoth/ccwrapped): local Claude Code usage analytics and a shareable Wrapped card. npm @greymoth/ccwrapped.
+- [tokenops](https://www.npmjs.com/package/@greymoth/tokenops): Claude Code cost analysis and data-validated optimization advice. npm @greymoth/tokenops.
 - [geo-checker](https://github.com/greymoth-jp/geo-checker): score any URL for AI-search / GEO readiness (llms.txt, JSON-LD, answer-proximity).
-- [jp-ready-check](https://github.com/greymoth-jp/jp-ready-check): a Japan-market-readiness scan for any URL.
+- [jp-ready-check](https://japan-readiness.glovrex.com/): a Japan-market-readiness scan for any URL.
 - [tokushoho-generator](https://github.com/greymoth-jp/tokushoho-generator): generate a Japanese 特商法 legal-notice page.
-- [inkdex](https://github.com/greymoth-jp/inkdex): local ChatGPT/Claude usage tracker with a risograph Wrapped card.
-- [ghwrapped](https://github.com/greymoth-jp/ghwrapped): turn any public GitHub profile into a shareable Wrapped card.
+- [ghwrapped](https://www.npmjs.com/package/@greymoth/ghwrapped): turn any public GitHub profile into a shareable Wrapped card.
 
 ## Live apps
 - [FocusSplit](https://focussplit.com): tasks to an instant focus timer with a shareable Focus Receipt.
